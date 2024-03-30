@@ -48,3 +48,5 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     user['_id'] = str(user['_id'])
     return user
+
+

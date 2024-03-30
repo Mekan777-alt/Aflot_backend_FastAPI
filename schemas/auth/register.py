@@ -1,5 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List
+from schemas.auth.validate import check_password_complexity
+from fastapi import HTTPException
+from starlette import status
 
 
 class Position(BaseModel):
@@ -11,7 +14,7 @@ class Worked(BaseModel):
 
 
 class RegisterUser(BaseModel):
-    email: str
+    email: EmailStr
     phone_number: str
     first_name: str
     last_name: str
@@ -23,3 +26,28 @@ class RegisterUser(BaseModel):
     worked: List[Worked]
     password: str
     confirm_password: str
+
+    def verify_password(self):
+        if not check_password_complexity(self.password):
+            raise HTTPException(detail='Пароль должен содержать минимум 8 символов, включая хотя бы одну заглавную '
+                                       'букву, одну строчную букву, одну цифру и один спецсимвол из!@#$%^&*(),.?":{}|<>',
+                                status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class RegisterCompany(BaseModel):
+    company_name: str
+    company_inn: str
+    company_address: str
+    email: EmailStr
+    phone_number: str
+    last_name: str
+    first_name: str
+    patronymic: str
+    password: str
+    confirm_password: str
+
+    def verify_password(self):
+        if not check_password_complexity(self.password):
+            raise HTTPException(detail='Пароль должен содержать минимум 8 символов, включая хотя бы одну заглавную '
+                                       'букву, одну строчную букву, одну цифру и один спецсимвол из!@#$%^&*(),.?":{}|<>',
+                                status_code=status.HTTP_400_BAD_REQUEST)
