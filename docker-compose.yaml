@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:4.4.6
+    container_name: mongo_container
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      mongo_net:
+        ipv4_address: 173.20.0.2
+
+  fast_api:
+    container_name: aflot
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/Aflot_backend_FastAPI
+    ports:
+      - "8001:8000"
+    networks:
+      mongo_net:
+        ipv4_address: 173.20.0.3
+
+networks:
+  mongo_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 173.20.0.0/16
