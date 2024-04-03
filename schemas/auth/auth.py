@@ -19,27 +19,23 @@ class UserCreate(schemas.BaseUserCreate):
     first_name: str
     last_name: str
     patronymic: str
-    country: str
-    region: str
-    city: str
+    country: Optional[str] = None
+    region: Optional[str] = None
+    city: Optional[str] = None
     telegram: Optional[str] = None
-    positions: List[Position]
-    worked: List[Worked]
+    positions: Optional[List[Position]] = None
+    worked: Optional[List[Worked]] = None
+    company_name: Optional[str] = None
+    company_inn: Optional[str] = None
+    company_address: Optional[str] = None
+    phone_number: Optional[str] = None
+
+    class Config:
+        exclude_unset = True
 
 
 class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
-class CompanyRead(schemas.BaseUser[PydanticObjectId]):
-    pass
 
-
-class CompanyCreate(schemas.BaseUserCreate):
-    company_name: str
-    company_inn: str
-    company_address: str
-    phone_number: str
-    last_name: str
-    first_name: str
-    patronymic: str

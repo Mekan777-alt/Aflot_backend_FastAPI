@@ -1,41 +1,31 @@
-import motor.motor_asyncio
 from beanie import Document
 from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
 from schemas.auth.auth import Optional, List, Worked, Position
-
-DATABASE_URL = "mongodb://localhost:27017"
-client = motor.motor_asyncio.AsyncIOMotorClient(
-    DATABASE_URL, uuidRepresentation="standard"
-)
-
-db = client['aflot_backend']
+from models.db import db
 
 
 class User(BeanieBaseUser, Document):
+    __database__ = db
+    __collection__ = "users"
+
     first_name: str
     last_name: str
     patronymic: str
-    country: str
-    region: str
-    city: str
+    country: Optional[str] = None
+    region: Optional[str] = None
+    city: Optional[str] = None
     telegram: Optional[str] = None
-    positions: List[Position]
-    worked: List[Worked]
+    positions: Optional[List[Position]] = None
+    worked: Optional[List[Worked]] = None
+    company_name: Optional[str] = None
+    company_inn: Optional[str] = None
+    company_address: Optional[str] = None
+    phone_number: Optional[str] = None
 
-
-class Company(BeanieBaseUser, Document):
-    company_name: str
-    company_inn: str
-    company_address: str
-    phone_number: str
-    last_name: str
-    first_name: str
-    patronymic: str
+    class Config:
+        exclude_none = True
 
 
 async def get_user_db():
     yield BeanieUserDatabase(User)
 
-
-async def get_company_db():
-    yield BeanieUserDatabase(Company)
