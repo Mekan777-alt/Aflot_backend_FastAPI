@@ -1,4 +1,4 @@
-from .create import router as create_router
+from .vacancies import router as create_router
 from fastapi import APIRouter
 
 jobs_router = APIRouter()

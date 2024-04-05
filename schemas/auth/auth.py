@@ -1,21 +1,21 @@
-from beanie import PydanticObjectId
-from fastapi_users import schemas
 from typing import Optional, List
+from pydantic import BaseModel, EmailStr
+from beanie import PydanticObjectId
+from fastapi import Form
 
-
-class Position(schemas.BaseModel):
+class Position(BaseModel):
     position_name: str
 
 
-class Worked(schemas.BaseModel):
+class Worked(BaseModel):
     worked: str
 
 
-class UserRead(schemas.BaseUser[PydanticObjectId]):
-    pass
-
-
-class UserCreate(schemas.BaseUserCreate):
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    confirm_password: str
+    phone_number: str
     first_name: str
     last_name: str
     patronymic: str
@@ -28,14 +28,13 @@ class UserCreate(schemas.BaseUserCreate):
     company_name: Optional[str] = None
     company_inn: Optional[str] = None
     company_address: Optional[str] = None
-    phone_number: Optional[str] = None
-
-    class Config:
-        exclude_unset = True
 
 
-class UserUpdate(schemas.BaseUserUpdate):
-    pass
+class UserRead(BaseModel):
+    id: PydanticObjectId
+    email: EmailStr
 
 
-
+class UserAuthenticate(BaseModel):
+    data: str = Form(...)
+    password: str = Form(...)

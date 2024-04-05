@@ -1,13 +1,24 @@
 from beanie import Document
-from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
-from schemas.auth.auth import Optional, List, Worked, Position
+from schemas.auth.auth import Optional, Worked, Position
 from models.db import db
+from pydantic import BaseModel, EmailStr, Field
+from typing import List
+from beanie import PydanticObjectId
 
 
-class User(BeanieBaseUser, Document):
+class Vacancies(BaseModel):
+    id: PydanticObjectId
+
+
+class User(Document):
     __database__ = db
     __collection__ = "users"
 
+    id: Optional[PydanticObjectId] = Field(None, alias="_id")
+    email: EmailStr
+    password: str
+    confirm_password: str
+    phone_number: str
     first_name: str
     last_name: str
     patronymic: str
@@ -20,12 +31,4 @@ class User(BeanieBaseUser, Document):
     company_name: Optional[str] = None
     company_inn: Optional[str] = None
     company_address: Optional[str] = None
-    phone_number: Optional[str] = None
-
-    class Config:
-        exclude_none = True
-
-
-async def get_user_db():
-    yield BeanieUserDatabase(User)
-
+    vacancies: Optional[List[Vacancies]] = None

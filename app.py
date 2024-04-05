@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from beanie import init_beanie
 from models.register import User
+from models.jobs import Ship
 from models.db import db
 from api.auth.routers import auth_router
-from fastapi_admin.app import app as admin_app
 from api.jobs.routers import jobs_router
+from api.profile.routers import profile
 
 
 @asynccontextmanager
@@ -15,15 +16,16 @@ async def lifespan(app: FastAPI):
         database=db,
         document_models=[
             User,
+            Ship,
         ],
     )
     yield
-
 app = FastAPI(lifespan=lifespan)
-app.mount("/admin", admin_app)
+
 
 app.include_router(auth_router)
 app.include_router(jobs_router)
+app.include_router(profile)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,19 +35,3 @@ app.add_middleware(
     allow_credentials=True
 )
 
-
-@app.middleware("http")
-async def check_request_type(request: Request, call_next):
-    auth_router_mapping = {
-        "/auth/jwt/login": "/auth",
-        "/auth/user": "/user",
-        "/auth/company": "/company",
-    }
-
-    for path, prefix in auth_router_mapping.items():
-        if request.url.path.startswith(path):
-            request.state.auth_router_prefix = prefix
-            break
-
-    response = await call_next(request)
-    return response

@@ -9,19 +9,22 @@ async-timeout==4.0.3
 Babel==2.14.0
 bcrypt==4.1.2
 beanie==1.25.0
+blinker==1.7.0
 certifi==2024.2.2
 cffi==1.16.0
 chardet==3.0.4
 click==8.1.7
-cryptography==3.3.2
+cryptography==42.0.5
 dnspython==2.6.1
+ecdsa==0.18.0
 email_validator==2.1.1
 esia-oauth2==1.0.2
 exceptiongroup==1.2.0
 fastapi==0.109.2
 fastapi-admin==1.0.4
-fastapi-users==13.0.0
+fastapi-jwt==0.2.0
 fastapi-users-db-beanie==3.0.0
+Flask==3.0.2
 h11==0.14.0
 httpcore==1.0.5
 httptools==0.6.1
@@ -30,6 +33,7 @@ httpx-oauth==0.13.2
 idna==2.8
 install==1.3.5
 iso8601==1.1.0
+itsdangerous==2.1.2
 Jinja2==3.1.3
 lazy-model==0.2.0
 M2Crypto @ git+https://gitlab.com/m2crypto/m2crypto.git@01ce3e9ad44660b903fcd78284c5a18cc9ff898a
@@ -39,6 +43,7 @@ motor==3.4.0
 passlib==1.7.4
 pendulum==3.0.0
 pwdlib==0.2.0
+pyasn1==0.6.0
 pycparser==2.21
 pydantic==2.6.4
 pydantic_core==2.16.3
@@ -47,11 +52,13 @@ pymongo==4.6.3
 pypika-tortoise==0.1.6
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+python-jose==3.3.0
 python-multipart==0.0.9
 pytz==2024.1
 PyYAML==6.0.1
 redis==5.0.3
 requests==2.21.0
+rsa==4.9
 six==1.16.0
 sniffio==1.3.1
 starlette==0.36.3
@@ -65,3 +72,5 @@ uvicorn==0.29.0
 uvloop==0.19.0
 watchfiles==0.21.0
 websockets==12.0
+Werkzeug==3.0.2
+WTForms==3.1.2
