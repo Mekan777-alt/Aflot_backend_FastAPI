@@ -3,16 +3,19 @@ from models.register import User, Vacancies
 from beanie import PydanticObjectId
 from models.jobs import Ship as ShipModel
 from starlette import status
+from api.auth.config import get_current_user
 from starlette.responses import JSONResponse
 from schemas.jobs.ship import Ship, ShipRead
 
 router = APIRouter(
-    prefix="/api/v1"
+    prefix="/api/v1",
+    tags=["Vacancies"]
 )
 
 
 @router.post("/{company_id}/create_vacancies", response_model=ShipRead)
-async def create_job(jobs_create: ShipModel, company_id: PydanticObjectId):
+async def create_job(jobs_create: ShipModel, company_id: PydanticObjectId,
+                     current_user: User = Depends(get_current_user)):
     try:
 
         company_check = await User.get(company_id)
@@ -36,7 +39,7 @@ async def create_job(jobs_create: ShipModel, company_id: PydanticObjectId):
 
 
 @router.get("/{company_id}/vacancies")
-async def get_company_vacancies(company_id: PydanticObjectId):
+async def get_company_vacancies(company_id: PydanticObjectId, current_user: User = Depends(get_current_user)):
     try:
         company_data = await User.get(company_id)
         if not company_data:
@@ -56,4 +59,15 @@ async def get_company_vacancies(company_id: PydanticObjectId):
         return vacancies_info
     except HTTPException as e:
 
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+
+
+@router.get("/vacancies")
+async def get_all_vacancies(user: User = Depends(get_current_user)):
+    try:
+
+        vacancies = await ShipModel.find().to_list()
+        return vacancies
+
+    except HTTPException as e:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))

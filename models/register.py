@@ -17,7 +17,6 @@ class User(Document):
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     email: EmailStr
     password: str
-    confirm_password: str
     phone_number: str
     first_name: str
     last_name: str

@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.post("/register", response_model=UserRead)
-async def register_user(user_data: UserModel):
+async def register_user(user_data: UserCreate):
     try:
         collection = db['User']
         if await collection.find_one({"email": user_data.email}):
@@ -25,11 +25,11 @@ async def register_user(user_data: UserModel):
         hashed_password = pwd_context.hash(user_data.password)
 
         user_data.password = hashed_password
-        del user_data.confirm_password
 
-        await user_data.create()
+        user = UserModel(**user_data.dict())
+        await user.create()
 
-        return user_data
+        return user
     except HTTPException as e:
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 

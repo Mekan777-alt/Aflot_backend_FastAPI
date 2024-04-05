@@ -20,7 +20,7 @@ EXPIRATION_TIME = timedelta(minutes=30)
 
 def create_jwt_token(data: dict):
     expiration = datetime.utcnow() + EXPIRATION_TIME
-    data.update({"exp": expiration})
+    data.update({"iat": datetime.utcnow(), "exp": expiration})
     token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
