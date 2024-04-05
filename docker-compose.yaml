@@ -6,12 +6,13 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    env_file:
+      - .env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     networks:
-      mongo_net:
-        ipv4_address: 173.20.0.2
+      - mynetwork
 
   fast_api:
     container_name: aflot
@@ -23,12 +24,8 @@ services:
     ports:
       - "8000:8000"
     networks:
-      mongo_net:
-        ipv4_address: 173.20.0.3
+      - mynetwork
 
 networks:
-  mongo_net:
+  mynetwork:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 173.20.0.0/16

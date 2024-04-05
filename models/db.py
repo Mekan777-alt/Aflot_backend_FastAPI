@@ -8,7 +8,7 @@ load_dotenv()
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-DATABASE_URL = "mongodb://{DB_USERNAME}:{DB_PASSWORD}mongo_container:27017"
+DATABASE_URL = f"mongodb://{DB_USERNAME}:{DB_PASSWORD}@mongo:27017"
 client = motor.motor_asyncio.AsyncIOMotorClient(
     DATABASE_URL, uuidRepresentation="standard"
 )
