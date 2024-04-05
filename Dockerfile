@@ -1,6 +1,11 @@
 FROM python:3.10-slim-buster AS builder
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    swig \
+    libssl-dev \
+    python3-dev
 
 COPY requirements.txt .
 
