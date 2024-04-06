@@ -2,6 +2,8 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from beanie import PydanticObjectId
 from fastapi import Form
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 class Position(BaseModel):
     position_name: str
@@ -28,6 +30,7 @@ class UserCreate(BaseModel):
     company_name: Optional[str] = None
     company_inn: Optional[str] = None
     company_address: Optional[str] = None
+    salt: Optional[str] = None
 
 
 class UserRead(BaseModel):
@@ -35,6 +38,11 @@ class UserRead(BaseModel):
     email: EmailStr
 
 
-class UserAuthenticate(BaseModel):
-    data: str = Form(...)
-    password: str = Form(...)
+class UserAuthenticate(OAuth2PasswordRequestForm):
+    data: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

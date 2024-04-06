@@ -71,3 +71,15 @@ async def get_all_vacancies(user: User = Depends(get_current_user)):
 
     except HTTPException as e:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+
+
+@router.get("/vacancies/{vacancies_id}", response_model=ShipModel)
+async def get_vacancies_id(vacancies_id: PydanticObjectId, user: User = Depends(get_current_user)):
+    try:
+
+        vacancies = await ShipModel.get(vacancies_id)
+
+        return vacancies
+
+    except HTTPException as e:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))

@@ -31,3 +31,4 @@ class User(Document):
     company_inn: Optional[str] = None
     company_address: Optional[str] = None
     vacancies: Optional[List[Vacancies]] = None
+    salt: Optional[str] = None
