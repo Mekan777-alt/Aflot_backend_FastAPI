@@ -22,6 +22,7 @@ pwd_context = CryptContext(
     deprecated="auto",
 )
 EXPIRATION_TIME = timedelta(minutes=30)
+REFRESH_TOKEN_LIFETIME = timedelta(hours=24)
 
 
 def generate_salt():
@@ -40,11 +41,20 @@ def hash_password(password: str, salt: bytes):
     return hashed_password
 
 
-def create_jwt_token(data: dict):
-    expiration = datetime.utcnow() + EXPIRATION_TIME
-    data.update({"iat": datetime.utcnow(), "exp": expiration})
-    token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-    return token
+def generate_jwt_token(data: dict):
+    expiration_access = datetime.utcnow() + EXPIRATION_TIME
+    access_data = data.copy()
+    access_data.update({"iat": datetime.utcnow(), "exp": expiration_access})
+
+    access_token = jwt.encode(access_data, SECRET_KEY, algorithm=ALGORITHM)
+
+    expiration_refresh = datetime.utcnow() + REFRESH_TOKEN_LIFETIME
+    refresh_data = data.copy()
+    refresh_data.update({"iat": datetime.utcnow(), "exp": expiration_refresh})
+
+    refresh_token = jwt.encode(refresh_data, SECRET_KEY, algorithm=ALGORITHM)
+
+    return {"access_token": access_token, "refresh_token": refresh_token}
 
 
 def verify_jwt_token(token: str):

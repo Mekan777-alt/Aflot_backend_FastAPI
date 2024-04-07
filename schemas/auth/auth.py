@@ -54,7 +54,7 @@ class UserAuthenticate(OAuth2PasswordRequestForm):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: str
 
 
 class CompanyCreate(BaseModel):

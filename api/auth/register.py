@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from models.register import UserModel, CompanyModel
 from models.register import db
-from .config import pwd_context, create_jwt_token, generate_salt, hash_password
+from .config import (pwd_context, generate_jwt_token, generate_salt, hash_password, oauth2_scheme,
+                     verify_jwt_token)
 from schemas.auth.auth import UserCreate, UserRead, CompanyRead, CompanyCreate
 from starlette import status
 from api.auth.auth import UserAuthService, CompanyAuthService
@@ -91,12 +92,41 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()):
             raise HTTPException(status_code=400, detail="Incorrect username or password")
 
         if user:
-            jwt_token = create_jwt_token({"sub": form_data.username, 'role': user.role})
-            return {"access_token": jwt_token, "token_type": "bearer"}
+            jwt_token = generate_jwt_token({"sub": form_data.username, 'role': user.role})
+            return jwt_token
 
         if company:
-            jwt_token = create_jwt_token({"sub": form_data.username, 'role': company.role})
-            return {"access_token": jwt_token, "token_type": "bearer"}
+            jwt_token = generate_jwt_token({"sub": form_data.username, 'role': company.role})
+            return jwt_token
+
+    except HTTPException as e:
+        raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post("/refresh_token", response_model=Token)
+async def refresh_token_get(refresh_token: str = Depends(oauth2_scheme)):
+    try:
+        decoded_data = verify_jwt_token(refresh_token)
+
+        user_service = UserAuthService()
+        company_service = CompanyAuthService()
+
+        if not decoded_data:
+            raise HTTPException(status_code=400, detail="Invalid token")
+
+        user = await user_service.find_user(decoded_data['sub'])
+        company = await company_service.find_company(decoded_data['sub'])
+
+        if not user and not company:
+            raise HTTPException(status_code=401, detail="Invalid user or company")
+
+        if user:
+            token = generate_jwt_token({"sub": decoded_data['sub'], 'role': user.role})
+            return token
+
+        if company:
+            token = generate_jwt_token({"sub": decoded_data['sub'], 'role': company.role})
+            return token
 
     except HTTPException as e:
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
