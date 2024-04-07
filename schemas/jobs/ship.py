@@ -20,6 +20,7 @@ class Ship(BaseModel):
     ship_type: str
     year_built: int
     contact_person: str
+    status: Optional[str] = None
     email: Optional[EmailStr] = None
     dwt: int
     kw: int

@@ -10,25 +10,41 @@ class Vacancies(BaseModel):
     id: PydanticObjectId
 
 
-class User(Document):
+class UserModel(Document):
     __database__ = db
-    __collection__ = "users"
+    __collection__ = "User"
 
-    id: Optional[PydanticObjectId] = Field(None, alias="_id")
+    id: PydanticObjectId = Field(None, alias="_id")
     email: EmailStr
     password: str
     phone_number: str
     first_name: str
     last_name: str
-    patronymic: str
+    patronymic: Optional[str] = None
+    role: str
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
-    company_name: Optional[str] = None
-    company_inn: Optional[str] = None
-    company_address: Optional[str] = None
+
+
+class CompanyModel(Document):
+    __database__ = db
+    __collection__ = "Company"
+
+    id: PydanticObjectId = Field(None, alias="_id")
+    email: EmailStr
+    password: str
+    phone_number: str
+    first_name: str
+    last_name: str
+    patronymic: Optional[str] = None
+    role: str
+    telegram: Optional[str] = None
+    company_name: str
+    company_inn: str
+    company_address: str
     vacancies: Optional[List[Vacancies]] = None
     salt: Optional[str] = None

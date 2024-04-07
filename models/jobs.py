@@ -2,7 +2,7 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field
 from models.db import db
 from typing import Optional
-from datetime import datetime
+from datetime import date
 from pydantic import EmailStr
 
 
@@ -13,13 +13,14 @@ class Ship(Document):
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     position: str
     salary: str
-    date_of_departure: Optional[datetime] = None
+    date_of_departure: Optional[date] = None
     contract_duration: str
     ship_name: str
     imo: Optional[str] = None
     ship_type: str
     year_built: int
     contact_person: str
+    status: str
     email: Optional[EmailStr] = None
     dwt: int
     kw: int

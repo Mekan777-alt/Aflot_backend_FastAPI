@@ -20,22 +20,31 @@ class UserCreate(BaseModel):
     phone_number: str
     first_name: str
     last_name: str
-    patronymic: str
+    patronymic: Optional[str] = None
+    role: Optional[str] = None
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
-    company_name: Optional[str] = None
-    company_inn: Optional[str] = None
-    company_address: Optional[str] = None
     salt: Optional[str] = None
 
 
 class UserRead(BaseModel):
     id: PydanticObjectId
     email: EmailStr
+    phone_number: str
+    first_name: str
+    last_name: str
+    patronymic: Optional[str] = None
+    role: Optional[str] = None
+    country: Optional[str] = None
+    region: Optional[str] = None
+    city: Optional[str] = None
+    telegram: Optional[str] = None
+    positions: Optional[List[Position]] = None
+    worked: Optional[List[Worked]] = None
 
 
 class UserAuthenticate(OAuth2PasswordRequestForm):
@@ -46,3 +55,33 @@ class UserAuthenticate(OAuth2PasswordRequestForm):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class CompanyCreate(BaseModel):
+    email: EmailStr
+    password: str
+    confirm_password: str
+    first_name: str
+    last_name: str
+    patronymic: Optional[str] = None
+    role: Optional[str] = None
+    phone_number: str
+    company_name: str
+    company_inn: str
+    company_address: str
+    telegram: Optional[str] = None
+    salt: Optional[str] = None
+
+
+class CompanyRead(BaseModel):
+    id: PydanticObjectId
+    email: EmailStr
+    first_name: str
+    last_name: str
+    patronymic: Optional[str] = None
+    role: Optional[str] = None
+    phone_number: str
+    company_name: str
+    company_inn: str
+    company_address: str
+    telegram: Optional[str] = None
