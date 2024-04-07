@@ -53,15 +53,3 @@ def verify_jwt_token(token: str):
         return decoded_data
     except jwt.PyJWTError:
         return None
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    decoded_data = verify_jwt_token(token)
-    if not decoded_data:
-        raise HTTPException(status_code=400, detail="Invalid token")
-    collection = db['User']
-    user = await collection.find_one({"$or": [{"email": decoded_data["sub"]},
-                                              {"phone_number": decoded_data["sub"]}, {"inn": decoded_data["sub"]}]})
-    if not user:
-        raise HTTPException(status_code=400, detail="User not found")
-    return user

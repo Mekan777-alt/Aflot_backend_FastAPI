@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models.register import UserModel, Vacancies
+from models.register import CompanyModel, Vacancies, UserModel
 from beanie import PydanticObjectId
 from models.jobs import Ship as ShipModel
 from starlette import status
-from api.auth.config import get_current_user
+from api.auth.auth import get_current_user
 from starlette.responses import JSONResponse
 from schemas.jobs.ship import Ship, ShipRead
+from typing import Annotated
 
 router = APIRouter(
     prefix="/api/v1",
@@ -15,10 +16,10 @@ router = APIRouter(
 
 @router.post("/{company_id}/create_vacancies", response_model=ShipRead)
 async def create_vacancies_by_company(jobs_create: ShipModel, company_id: PydanticObjectId,
-                                      current_user: UserModel = Depends(get_current_user)):
+                                      current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
-        company_check = await UserModel.get(company_id)
+        company_check = await CompanyModel.get(company_id)
 
         if not company_check:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
@@ -39,9 +40,9 @@ async def create_vacancies_by_company(jobs_create: ShipModel, company_id: Pydant
 
 
 @router.get("/{company_id}/vacancies")
-async def get_company_vacancies(company_id: PydanticObjectId, current_user: UserModel = Depends(get_current_user)):
+async def get_company_vacancies(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
-        company_data = await UserModel.get(company_id)
+        company_data = await CompanyModel.get(company_id)
         if not company_data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
@@ -64,7 +65,7 @@ async def get_company_vacancies(company_id: PydanticObjectId, current_user: User
 
 @router.get("/{company_id}/vacancies/{vacancy_id}")
 async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
-                                   current_user: UserModel = Depends(get_current_user)):
+                                   current_user: Annotated[dict, Depends(get_current_user)]):
 
     try:
 
@@ -77,7 +78,7 @@ async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: Pyd
 
 @router.put("/{company_id}/vacancies/{vacancy_id}")
 async def update_vacancies_by_company(jobs_update: ShipModel, company_id: PydanticObjectId,
-                                      user: UserModel = Depends(get_current_user)):
+                                      current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         pass
@@ -88,7 +89,7 @@ async def update_vacancies_by_company(jobs_update: ShipModel, company_id: Pydant
 
 
 @router.get("/vacancies")
-async def get_all_vacancies(user: UserModel = Depends(get_current_user)):
+async def get_all_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         vacancies = await ShipModel.find().to_list()
@@ -99,7 +100,7 @@ async def get_all_vacancies(user: UserModel = Depends(get_current_user)):
 
 
 @router.get("/vacancies/{vacancies_id}", response_model=ShipModel)
-async def get_vacancies_id(vacancies_id: PydanticObjectId, user: UserModel = Depends(get_current_user)):
+async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         vacancies = await ShipModel.get(vacancies_id)

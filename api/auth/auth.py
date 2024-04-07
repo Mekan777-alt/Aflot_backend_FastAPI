@@ -1,97 +1,95 @@
-from fastapi import APIRouter
-from fastapi import Depends, HTTPException
-from models.register import UserModel, CompanyModel
-from models.register import db
-from .config import pwd_context, create_jwt_token, generate_salt, hash_password
-from schemas.auth.auth import UserCreate, UserRead, CompanyRead, CompanyCreate
-from starlette import status
-from schemas.auth.auth import Token
-from fastapi.security import OAuth2PasswordRequestForm
-
-router = APIRouter(
-    prefix="/api/v1"
-)
+from abc import ABC, abstractmethod
+from typing import Optional
+from fastapi import HTTPException, Depends
+from models.db import db
+from pydantic import BaseModel
+from api.auth.config import hash_password, oauth2_scheme, verify_jwt_token, pwd_context
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
-@router.post("/register/user", response_model=UserRead)
-async def register_user(user_data: UserCreate):
-    try:
-
-        collection = db['User']
-
-        if await collection.find_one({"email": user_data.email}):
-
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+class AuthSchemas(BaseModel):
+    email: str
+    role: str
 
 
-        if user_data.password != user_data.confirm_password:
-
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The passwords don't match")
-
-        salt = generate_salt()
-        hashed_password = hash_password(user_data.password, salt)
-
-        user_data.password = hashed_password
-        user_data.salt = salt
-
-        user_data.role = 'sailor'
-
-        user = UserModel(**user_data.dict())
-
-        await user.create()
-
-        return user
-    except HTTPException as e:
-        raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+class AuthService(ABC):
+    @abstractmethod
+    async def authenticate(self, email: str, password: str) -> Optional[AuthSchemas]:
+        pass
 
 
-@router.post("/register/company", response_model=CompanyRead)
-async def register_company(company_data: CompanyCreate):
-    try:
+class UserAuthService(AuthService):
 
-        collection = db['Company']
+    def __init__(self):
+        self.user_collection = db['UserModel']
 
-        if await collection.find_one({"email": company_data.email}):
-
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-
-
-        if company_data.password != company_data.confirm_password:
-
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The passwords don't match")
-
-        salt = generate_salt()
-        hashed_password = hash_password(company_data.password, salt)
-
-        company_data.password = hashed_password
-        company_data.salt = salt
-
-        company_data.role = 'company'
-
-        company = CompanyModel(**company_data.dict())
-
-        await company.create()
-
-        return company
-
-    except HTTPException as e:
-        raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
-
-
-@router.post("/token", response_model=Token)
-async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()):
-    try:
-        collection = db['User']
-        user = await collection.find_one({"$or": [{"email": form_data.username}, {"phone_number": form_data.username},
-                                                  {"inn": form_data.username}]})
+    async def authenticate(self, email: str, password: str) -> Optional[AuthSchemas]:
+        user = await self.user_collection.find_one({"$or": [{"email": email},
+                                                            {"phone_number": email}, {"inn": email}]})
         if not user:
-            raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-        is_password_correct = pwd_context.verify(form_data.password, user['password'])
+            return None
 
-        if not is_password_correct:
-            raise HTTPException(status_code=400, detail="Incorrect username or password")
-        jwt_token = create_jwt_token({"sub": form_data.username})
-        return {"access_token": jwt_token, "token_type": "bearer"}
-    except HTTPException as e:
-        raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+        is_correct_password = pwd_context.verify(password, user['password'])
+
+        if not is_correct_password:
+
+            raise HTTPException(detail="Incorrect password", status_code=401)
+
+        return AuthSchemas(email=user['email'], role=user['role'])
+
+    async def find_user(self, email: str) -> Optional[AuthSchemas]:
+        user = await self.user_collection.find_one({"$or": [{"email": email},
+                                                            {"phone_number": email}, {"inn": email}]})
+        if not user:
+            return None
+        return AuthSchemas(email=user['email'], role=user['role'])
+
+
+class CompanyAuthService(AuthService):
+
+    def __init__(self):
+        self.company_collection = db['CompanyModel']
+
+    async def authenticate(self, email: str, password: str) -> Optional[AuthSchemas]:
+        company = await self.company_collection.find_one({"$or": [{"email": email},
+                                                                  {"phone_number": email}, {"inn": email}]})
+
+        if not company:
+
+            return None
+
+        is_correct_password = pwd_context.verify(password, company['password'])
+
+        if not is_correct_password:
+
+            raise HTTPException(detail="Invalid password", status_code=401)
+
+        return AuthSchemas(email=company['email'], role=company['role'])
+
+    async def find_company(self, email: str) -> Optional[AuthSchemas]:
+        company = await self.company_collection.find_one({"$or": [{"email": email},
+                                                                  {"phone_number": email}, {"inn": email}]})
+        if not company:
+            return None
+
+        return AuthSchemas(email=company['email'], role=company['role'])
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    user_service = UserAuthService()
+    company_service = CompanyAuthService()
+
+    decoded_data = verify_jwt_token(token)
+
+    if not decoded_data:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    user = await user_service.find_user(decoded_data['sub'])
+    company = await company_service.find_company(decoded_data['sub'])
+
+    if user:
+        return user
+
+    if company:
+        return company

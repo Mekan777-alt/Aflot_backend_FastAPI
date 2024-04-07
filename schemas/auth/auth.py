@@ -48,7 +48,7 @@ class UserRead(BaseModel):
 
 
 class UserAuthenticate(OAuth2PasswordRequestForm):
-    data: str
+    username: str
     password: str
 
 
