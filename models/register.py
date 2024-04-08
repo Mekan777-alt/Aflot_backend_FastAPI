@@ -10,6 +10,14 @@ class Vacancies(BaseModel):
     id: PydanticObjectId
 
 
+class BlackList(BaseModel):
+    id: PydanticObjectId
+
+
+class Favorites(BaseModel):
+    id: PydanticObjectId
+
+
 class UserModel(Document):
     __database__ = db
     __collection__ = "User"
@@ -44,4 +52,6 @@ class CompanyModel(Document):
     company_name: str
     company_inn: Indexed(int, unique=True)
     company_address: str
+    favorites: Optional[List[Favorites]] = None
+    black_list: Optional[List[BlackList]] = None
     vacancies: Optional[List[Vacancies]] = None

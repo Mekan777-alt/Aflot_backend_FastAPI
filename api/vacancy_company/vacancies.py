@@ -1,21 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models.register import CompanyModel, Vacancies, UserModel
+from models.register import CompanyModel, Vacancies
 from beanie import PydanticObjectId
 from models.jobs import Ship as ShipModel
 from starlette import status
-from models.db import db
 from api.auth.auth import get_current_user
 from starlette.responses import JSONResponse
-from schemas.jobs.ship import Ship, ShipRead
+from schemas.vacancies_company.ship import Ship, ShipRead
 from typing import Annotated
 
 router = APIRouter(
     prefix="/api/v1",
-    tags=["Vacancies"]
+    tags=["Vacancies Company"]
 )
 
 
-@router.post("/{company_id}/create_vacancies", response_model=ShipRead)
+@router.post("/{company_id}/create_vacancies_company", response_model=ShipRead)
 async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObjectId,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -43,7 +42,7 @@ async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObj
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/{company_id}/vacancies")
+@router.get("/{company_id}/vacancies_company")
 async def get_company_vacancies(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company_data = await CompanyModel.get(company_id)
@@ -67,7 +66,7 @@ async def get_company_vacancies(company_id: PydanticObjectId, current_user: Anno
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/{company_id}/vacancies/{vacancy_id}")
+@router.get("/{company_id}/vacancies_company/{vacancy_id}")
 async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
                                    current_user: Annotated[dict, Depends(get_current_user)]):
 
@@ -90,7 +89,7 @@ async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: Pyd
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.put("/{company_id}/vacancies/{vacancy_id}", response_model=ShipRead)
+@router.put("/{company_id}/vacancies_company/{vacancy_id}", response_model=ShipRead)
 async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -119,7 +118,7 @@ async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectI
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/vacancies")
+@router.get("/vacancies_company")
 async def get_all_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -130,7 +129,7 @@ async def get_all_vacancies(current_user: Annotated[dict, Depends(get_current_us
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/vacancies/{vacancies_id}")
+@router.get("/vacancies_company/{vacancies_id}")
 async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -150,5 +149,3 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotat
 
     except HTTPException as e:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
-
-

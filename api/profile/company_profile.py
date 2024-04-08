@@ -5,7 +5,8 @@ from beanie import PydanticObjectId
 from models.register import UserModel
 
 router = APIRouter(
-    prefix="/api/v1"
+    prefix="/api/v1",
+    tags=["Company Profile"],
 )
 
 

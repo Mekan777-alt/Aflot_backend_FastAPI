@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 from beanie import init_beanie
 from models import db, UserModel, CompanyModel, Auth, Ship
 from api.auth.routers import auth_router
-from api.jobs.routers import jobs_router
+from api.vacancy_company.routers import vacancy_company_router
 from api.profile.routers import profile
+from api.resumes.routers import vacancy_user_router
 
 
 @asynccontextmanager
@@ -23,8 +24,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
-app.include_router(jobs_router)
+app.include_router(vacancy_company_router)
 app.include_router(profile)
+app.include_router(vacancy_user_router)
 
 app.add_middleware(
     CORSMiddleware,
