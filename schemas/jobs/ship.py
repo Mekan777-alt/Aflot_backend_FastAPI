@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import datetime
+from datetime import date
 from beanie import PydanticObjectId
 
 
@@ -13,7 +13,7 @@ class ShipRead(BaseModel):
 class Ship(BaseModel):
     position: str
     salary: str
-    date_of_departure: Optional[datetime] = None
+    date_of_departure: Optional[date] = None
     contract_duration: str
     ship_name: str
     imo: Optional[str] = None
