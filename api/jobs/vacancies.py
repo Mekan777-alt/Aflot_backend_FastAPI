@@ -16,7 +16,8 @@ router = APIRouter(
 
 
 @router.post("/{company_id}/create_vacancies", response_model=ShipRead)
-async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObjectId):
+async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObjectId,
+                                      current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         company_check = await CompanyModel.get(company_id)

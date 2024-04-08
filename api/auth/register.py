@@ -1,7 +1,10 @@
+
+from datetime import datetime
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from models.register import UserModel, CompanyModel
 from models.register import db
+from models.auth import Auth
 from .config import (pwd_context, generate_jwt_token, generate_salt, hash_password, oauth2_scheme,
                      verify_jwt_token)
 from schemas.auth.auth import UserCreate, UserRead, CompanyRead, CompanyCreate
@@ -25,6 +28,9 @@ async def register_user(user_data: UserCreate):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
+        if await collection.find_one({"phone_number": user_data.phone_number}):
+
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
 
         if user_data.password != user_data.confirm_password:
 
@@ -33,13 +39,23 @@ async def register_user(user_data: UserCreate):
         salt = generate_salt()
         hashed_password = hash_password(user_data.password, salt)
 
-        user_data.password = hashed_password
-        user_data.salt = salt
-
-        user_data.role = 'sailor'
+        user_data.role = 'Моряк'
 
         user = UserModel(**user_data.dict())
 
+        auth = Auth(
+            email=user_data.email,
+            hashed_password=hashed_password,
+            salt=salt,
+            phone_number=user_data.phone_number,
+            role=user_data.role,
+            is_active=True,
+            is_superuser=False,
+            is_verified=False,
+            last_login=datetime.now(),
+        )
+
+        await auth.create()
         await user.create()
 
         return user
@@ -57,6 +73,13 @@ async def register_company(company_data: CompanyCreate):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
+        if await collection.find_one({"phone_number": company_data.phone_number}):
+
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
+
+        if await collection.find_one({"inn": company_data.company_inn}):
+
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
 
         if company_data.password != company_data.confirm_password:
 
@@ -65,14 +88,25 @@ async def register_company(company_data: CompanyCreate):
         salt = generate_salt()
         hashed_password = hash_password(company_data.password, salt)
 
-        company_data.password = hashed_password
-        company_data.salt = salt
-
-        company_data.role = 'company'
+        company_data.role = 'Компания'
 
         company = CompanyModel(**company_data.dict())
 
+        auth = Auth(
+            email=company_data.email,
+            hashed_password=hashed_password,
+            salt=salt,
+            inn=company_data.company_inn,
+            phone_number=company_data.phone_number,
+            role=company_data.role,
+            is_active=True,
+            is_superuser=False,
+            is_verified=False,
+            last_login=datetime.now(),
+        )
+
         await company.create()
+        await auth.create()
 
         return company
 

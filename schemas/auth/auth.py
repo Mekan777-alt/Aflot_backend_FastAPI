@@ -67,7 +67,7 @@ class CompanyCreate(BaseModel):
     role: Optional[str] = None
     phone_number: str
     company_name: str
-    company_inn: str
+    company_inn: int
     company_address: str
     telegram: Optional[str] = None
     salt: Optional[str] = None
@@ -82,6 +82,6 @@ class CompanyRead(BaseModel):
     role: Optional[str] = None
     phone_number: str
     company_name: str
-    company_inn: str
+    company_inn: int
     company_address: str
     telegram: Optional[str] = None

@@ -3,7 +3,7 @@ from schemas.auth.auth import Optional, Worked, Position
 from models.db import db
 from pydantic import BaseModel, EmailStr, Field
 from typing import List
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, Indexed
 
 
 class Vacancies(BaseModel):
@@ -15,8 +15,7 @@ class UserModel(Document):
     __collection__ = "User"
 
     id: PydanticObjectId = Field(None, alias="_id")
-    email: EmailStr
-    password: str
+    email: Indexed(EmailStr, unique=True)
     phone_number: str
     first_name: str
     last_name: str
@@ -35,16 +34,14 @@ class CompanyModel(Document):
     __collection__ = "Company"
 
     id: PydanticObjectId = Field(None, alias="_id")
-    email: EmailStr
-    password: str
-    phone_number: str
+    email: Indexed(EmailStr, unique=True)
+    phone_number: Indexed(str, unique=True)
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
     role: str
     telegram: Optional[str] = None
     company_name: str
-    company_inn: str
+    company_inn: Indexed(int, unique=True)
     company_address: str
     vacancies: Optional[List[Vacancies]] = None
-    salt: Optional[str] = None

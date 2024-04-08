@@ -2,9 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from beanie import init_beanie
-from models.register import UserModel, CompanyModel
-from models.jobs import Ship
-from models.db import db
+from models import db, UserModel, CompanyModel, Auth, Ship
 from api.auth.routers import auth_router
 from api.jobs.routers import jobs_router
 from api.profile.routers import profile
@@ -18,6 +16,7 @@ async def lifespan(app: FastAPI):
             UserModel,
             Ship,
             CompanyModel,
+            Auth
         ],
     )
     yield
