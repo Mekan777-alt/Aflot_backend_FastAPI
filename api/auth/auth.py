@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import HTTPException, Depends
 from models.db import db
 from pydantic import BaseModel
-from api.auth.config import hash_password, oauth2_scheme, verify_jwt_token, pwd_context
-from motor.motor_asyncio import AsyncIOMotorClient
+from api.auth.config import oauth2_scheme, verify_jwt_token, pwd_context
+from datetime import datetime
 
 
 class AuthSchemas(BaseModel):
@@ -21,25 +21,25 @@ class AuthService(ABC):
 class UserAuthService(AuthService):
 
     def __init__(self):
-        self.user_collection = db['UserModel']
+        self.auth_collection = db['Auth']
 
     async def authenticate(self, email: str, password: str) -> Optional[AuthSchemas]:
-        user = await self.user_collection.find_one({"$or": [{"email": email},
+        user = await self.auth_collection.find_one({"$or": [{"email": email},
                                                             {"phone_number": email}, {"inn": email}]})
         if not user:
-
             return None
 
-        is_correct_password = pwd_context.verify(password, user['password'])
+        is_correct_password = pwd_context.verify(password, user['hashed_password'])
 
         if not is_correct_password:
-
             raise HTTPException(detail="Incorrect password", status_code=401)
+
+        await self.auth_collection.update_one({"_id": user['_id']}, {"$set": {"last_login": datetime.now()}})
 
         return AuthSchemas(email=user['email'], role=user['role'])
 
     async def find_user(self, email: str) -> Optional[AuthSchemas]:
-        user = await self.user_collection.find_one({"$or": [{"email": email},
+        user = await self.auth_collection.find_one({"$or": [{"email": email},
                                                             {"phone_number": email}, {"inn": email}]})
         if not user:
             return None
@@ -49,27 +49,27 @@ class UserAuthService(AuthService):
 class CompanyAuthService(AuthService):
 
     def __init__(self):
-        self.company_collection = db['CompanyModel']
+        self.auth_collection = db['Auth']
 
     async def authenticate(self, email: str, password: str) -> Optional[AuthSchemas]:
-        company = await self.company_collection.find_one({"$or": [{"email": email},
-                                                                  {"phone_number": email}, {"inn": email}]})
+        company = await self.auth_collection.find_one({"$or": [{"email": email},
+                                                               {"phone_number": email}, {"inn": email}]})
 
         if not company:
-
             return None
 
-        is_correct_password = pwd_context.verify(password, company['password'])
+        is_correct_password = pwd_context.verify(password, company['hashed_password'])
 
         if not is_correct_password:
-
             raise HTTPException(detail="Invalid password", status_code=401)
+
+        await self.auth_collection.update_one({"_id": company['_id']}, {"$set": {"last_login": datetime.now()}})
 
         return AuthSchemas(email=company['email'], role=company['role'])
 
     async def find_company(self, email: str) -> Optional[AuthSchemas]:
-        company = await self.company_collection.find_one({"$or": [{"email": email},
-                                                                  {"phone_number": email}, {"inn": email}]})
+        company = await self.auth_collection.find_one({"$or": [{"email": email},
+                                                               {"phone_number": email}, {"inn": email}]})
         if not company:
             return None
 
