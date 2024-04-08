@@ -19,7 +19,7 @@ router = APIRouter(
 async def register_user(user_data: UserCreate):
     try:
 
-        collection = db['User']
+        collection = db['UserModel']
 
         if await collection.find_one({"email": user_data.email}):
 
@@ -51,7 +51,7 @@ async def register_user(user_data: UserCreate):
 async def register_company(company_data: CompanyCreate):
     try:
 
-        collection = db['Company']
+        collection = db['CompanyModel']
 
         if await collection.find_one({"email": company_data.email}):
 
