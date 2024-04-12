@@ -2,11 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from beanie import init_beanie
-from models import db, UserModel, CompanyModel, Auth, Ship
-from api.auth.routers import auth_router
-from api.vacancy_company.routers import vacancy_company_router
-from api.profile.routers import profile
-from api.resumes.routers import vacancy_user_router
+from models import db, user_model, company_model, auth, ship, news_model
+from api.api_routers import api_router
+from admin.app import admin, app as admin_app
 
 
 @asynccontextmanager
@@ -14,19 +12,21 @@ async def lifespan(app: FastAPI):
     await init_beanie(
         database=db,
         document_models=[
-            UserModel,
-            Ship,
-            CompanyModel,
-            Auth
+            user_model,
+            ship,
+            company_model,
+            auth,
+            news_model,
         ],
     )
     yield
+
+
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(auth_router)
-app.include_router(vacancy_company_router)
-app.include_router(profile)
-app.include_router(vacancy_user_router)
+
+app.include_router(api_router)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,4 +35,3 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True
 )
-

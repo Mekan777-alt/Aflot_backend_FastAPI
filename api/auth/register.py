@@ -1,34 +1,28 @@
-
 from datetime import datetime
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
-from models.register import UserModel, CompanyModel
-from models.register import db
-from models.auth import Auth
-from .config import (pwd_context, generate_jwt_token, generate_salt, hash_password, oauth2_scheme,
-                     verify_jwt_token)
+from models.register import user_model, company_model
+from models.auth import auth as auth_model
+from .config import (generate_jwt_token, generate_salt, hash_password, oauth2_scheme,
+                     verify_jwt_token, convert_objectid_to_str)
 from schemas.auth.auth import UserCreate, UserRead, CompanyRead, CompanyCreate
 from starlette import status
-from api.auth.auth import UserAuthService, CompanyAuthService
+from api.auth.auth import AuthServices, AuthSchemas
 from schemas.auth.auth import Token
 from fastapi.security import OAuth2PasswordRequestForm
 
-router = APIRouter(
-    prefix="/api/v1"
-)
+router = APIRouter()
 
 
-@router.post("/register/user", response_model=UserRead)
+@router.post("/register/user", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def register_user(user_data: UserCreate):
     try:
 
-        collection = db['UserModel']
-
-        if await collection.find_one({"email": user_data.email}):
+        if await user_model.find_one({"email": user_data.email}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
-        if await collection.find_one({"phone_number": user_data.phone_number}):
+        if await user_model.find_one({"phone_number": user_data.phone_number}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
 
@@ -39,11 +33,35 @@ async def register_user(user_data: UserCreate):
         salt = generate_salt()
         hashed_password = hash_password(user_data.password, salt)
 
-        user_data.role = 'Моряк'
+        user_data_dict = user_data.dict()
+        user_data_dict["date_joined"] = datetime.now()
 
-        user = UserModel(**user_data.dict())
+        user = user_model(**user_data_dict)
 
-        auth = Auth(
+        service = AuthServices()
+
+        for k, v in user_data_dict.items():
+
+            if k == 'email':
+
+                auth_user = await service.check_user(v)
+
+                if auth_user:
+
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+
+            elif k == 'phone_number':
+
+                auth_user = await service.check_user(v)
+
+                if auth_user:
+
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
+            else:
+
+                pass
+
+        auth = auth_model(
             email=user_data.email,
             hashed_password=hashed_password,
             salt=salt,
@@ -63,21 +81,19 @@ async def register_user(user_data: UserCreate):
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/register/company", response_model=CompanyRead)
+@router.post("/register/company", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
 async def register_company(company_data: CompanyCreate):
     try:
 
-        collection = db['CompanyModel']
-
-        if await collection.find_one({"email": company_data.email}):
+        if await company_model.find_one({"email": company_data.email}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
-        if await collection.find_one({"phone_number": company_data.phone_number}):
+        if await company_model.find_one({"phone_number": company_data.phone_number}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
 
-        if await collection.find_one({"inn": company_data.company_inn}):
+        if await company_model.find_one({"company_inn": company_data.company_inn}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
 
@@ -88,11 +104,44 @@ async def register_company(company_data: CompanyCreate):
         salt = generate_salt()
         hashed_password = hash_password(company_data.password, salt)
 
-        company_data.role = 'Компания'
+        company_data_dict = company_data.dict()
+        company_data_dict["date_joined"] = datetime.now()
 
-        company = CompanyModel(**company_data.dict())
+        company = company_model(**company_data_dict)
 
-        auth = Auth(
+        service = AuthServices()
+
+        for k, v in company_data_dict.items():
+
+            if k == 'email':
+
+                auth_user = await service.check_user(v)
+
+                if auth_user:
+
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+
+            elif k == 'phone_number':
+
+                auth_user = await service.check_user(v)
+
+                if auth_user:
+
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
+
+            elif k == 'company_inn':
+
+                auth_user = await service.check_user(v)
+
+                if auth_user:
+
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
+
+            else:
+
+                pass
+
+        auth = auth_model(
             email=company_data.email,
             hashed_password=hashed_password,
             salt=salt,
@@ -117,21 +166,18 @@ async def register_company(company_data: CompanyCreate):
 @router.post("/token", response_model=Token)
 async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
-        user_service = UserAuthService()
-        company_service = CompanyAuthService()
+        service = AuthServices()
 
-        user = await user_service.authenticate(form_data.username, form_data.password)
-        company = await company_service.authenticate(form_data.username, form_data.password)
-        if not user and not company:
-            raise HTTPException(status_code=400, detail="Incorrect username or password")
+        user = await service.authenticate(form_data.username, form_data.password)
 
-        if user:
-            jwt_token = generate_jwt_token({"sub": form_data.username, 'role': user.role})
-            return jwt_token
+        if not user:
 
-        if company:
-            jwt_token = generate_jwt_token({"sub": form_data.username, 'role': company.role})
-            return jwt_token
+            raise HTTPException(detail="Invalid username or password", status_code=status.HTTP_401_UNAUTHORIZED)
+
+        data_token = convert_objectid_to_str(user, AuthSchemas)
+        jwt_token = generate_jwt_token(data_token)
+
+        return jwt_token
 
     except HTTPException as e:
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
@@ -142,25 +188,20 @@ async def refresh_token_get(refresh_token: str = Depends(oauth2_scheme)):
     try:
         decoded_data = verify_jwt_token(refresh_token)
 
-        user_service = UserAuthService()
-        company_service = CompanyAuthService()
+        service = AuthServices()
 
         if not decoded_data:
             raise HTTPException(status_code=400, detail="Invalid token")
 
-        user = await user_service.find_user(decoded_data['sub'])
-        company = await company_service.find_company(decoded_data['sub'])
+        user = await service.find_user(decoded_data['sub'])
 
-        if not user and not company:
+        if not user:
+
             raise HTTPException(status_code=401, detail="Invalid user or company")
 
-        if user:
-            token = generate_jwt_token({"sub": decoded_data['sub'], 'role': user.role})
-            return token
+        token = generate_jwt_token(decoded_data)
 
-        if company:
-            token = generate_jwt_token({"sub": decoded_data['sub'], 'role': company.role})
-            return token
+        return token
 
     except HTTPException as e:
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)

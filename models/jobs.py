@@ -6,7 +6,7 @@ from datetime import date
 from pydantic import EmailStr
 
 
-class Ship(Document):
+class ship(Document):
     __database__ = db
     __collection__ = "Jobs"
 

@@ -2,14 +2,13 @@ import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import secrets
-from models.db import db
-from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from passlib.hash import pbkdf2_sha256
+from bson import ObjectId
 
 load_dotenv()
 
@@ -63,3 +62,14 @@ def verify_jwt_token(token: str):
         return decoded_data
     except jwt.PyJWTError:
         return None
+
+
+def convert_objectid_to_str(data, schema=None):
+    if isinstance(data, dict):
+        return {k: str(v) if isinstance(v, ObjectId) else v for k, v in data.items()}
+    elif isinstance(data, list):
+        return [str(item) if isinstance(item, ObjectId) else item for item in data]
+    elif isinstance(data, schema):
+        return str(data)
+    else:
+        return data

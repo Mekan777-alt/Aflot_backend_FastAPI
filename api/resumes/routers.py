@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 from .resumes import router
 
-vacancy_user_router = APIRouter()
+resumes_router = APIRouter(
+    tags=["Resumes"],
+)
 
 
-vacancy_user_router.include_router(router)
+resumes_router.include_router(router)
 

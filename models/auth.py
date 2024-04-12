@@ -6,13 +6,13 @@ from pydantic import EmailStr, Field
 from typing import Optional
 
 
-class Auth(Document):
+class auth(Document):
 
     __collection__ = 'auth'
 
     id: PydanticObjectId = Field(None, alias="_id")
     email: Indexed(EmailStr, unique=True)
-    inn: Optional[Indexed(int, unique=True)] = None
+    inn: Optional[int] = None
     phone_number: Indexed(str, unique=True)
     hashed_password: str
     role: str

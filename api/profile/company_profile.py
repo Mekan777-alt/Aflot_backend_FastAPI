@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, APIRouter
 from starlette.responses import JSONResponse
 from starlette import status
 from beanie import PydanticObjectId
-from models.register import UserModel
+from models.register import company_model
 
 router = APIRouter(
     prefix="/api/v1",
@@ -10,16 +10,15 @@ router = APIRouter(
 )
 
 
-@router.get("/{company_id}/profile", response_model=UserModel)
+@router.get("/{company_id}/profile")
 async def get_company_profile(company_id: PydanticObjectId):
     try:
-        company_data = await UserModel.get(company_id)
+        company_data = await company_model.get(company_id)
 
         if not company_data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
 
         del company_data.vacancies
-        del company_data.hashed_password
 
         return company_data
 

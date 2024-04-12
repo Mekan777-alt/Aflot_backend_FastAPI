@@ -21,14 +21,14 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: Optional[str] = None
+    role: str = 'Моряк'
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
-    salt: Optional[str] = None
+    status: Optional[str] = None
 
 
 class UserRead(BaseModel):
@@ -45,6 +45,7 @@ class UserRead(BaseModel):
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
+    status: Optional[str] = None
 
 
 class UserAuthenticate(OAuth2PasswordRequestForm):
@@ -64,13 +65,12 @@ class CompanyCreate(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: Optional[str] = None
+    role: str = 'Компания'
     phone_number: str
     company_name: str
     company_inn: int
     company_address: str
     telegram: Optional[str] = None
-    salt: Optional[str] = None
 
 
 class CompanyRead(BaseModel):

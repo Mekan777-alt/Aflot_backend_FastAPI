@@ -1,7 +1,9 @@
+import math
+
 from fastapi import APIRouter, Depends, HTTPException
-from models.register import CompanyModel, Vacancies
+from models.register import company_model, Vacancies
 from beanie import PydanticObjectId
-from models.jobs import Ship as ShipModel
+from models.jobs import ship as ShipModel
 from starlette import status
 from api.auth.auth import get_current_user
 from starlette.responses import JSONResponse
@@ -14,12 +16,12 @@ router = APIRouter(
 )
 
 
-@router.post("/{company_id}/create_vacancies_company", response_model=ShipRead)
+@router.post("/{company_id}/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
 async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObjectId,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
-        company_check = await CompanyModel.get(company_id)
+        company_check = await company_model.get(company_id)
 
         if not company_check:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
@@ -42,10 +44,10 @@ async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObj
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/{company_id}/vacancies_company")
+@router.get("/{company_id}/vacancies", status_code=status.HTTP_200_OK)
 async def get_company_vacancies(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
-        company_data = await CompanyModel.get(company_id)
+        company_data = await company_model.get(company_id)
         if not company_data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
@@ -66,13 +68,13 @@ async def get_company_vacancies(company_id: PydanticObjectId, current_user: Anno
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/{company_id}/vacancies_company/{vacancy_id}")
+@router.get("/{company_id}/vacancies/{vacancy_id}", status_code=status.HTTP_200_OK)
 async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
                                    current_user: Annotated[dict, Depends(get_current_user)]):
 
     try:
 
-        company = await CompanyModel.get(company_id)
+        company = await company_model.get(company_id)
 
         if not company:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не найдена")
@@ -89,7 +91,7 @@ async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: Pyd
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.put("/{company_id}/vacancies_company/{vacancy_id}", response_model=ShipRead)
+@router.put("/{company_id}/vacancies/{vacancy_id}", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
 async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -105,7 +107,7 @@ async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectI
         if not job:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная вакансия не найдена")
 
-        company = await CompanyModel.get(company_id)
+        company = await company_model.get(company_id)
 
         if not company:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не найдена")
@@ -118,24 +120,33 @@ async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectI
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/vacancies_company")
-async def get_all_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
+@router.get("/vacancies")
+async def get_all_vacancies(page: int = 1,
+                            page_size: int = 4):
     try:
 
-        vacancies = await ShipModel.find().to_list()
+        skip = (page - 1) * page_size
+        limit = page_size
+
+        total_vacancies = await ShipModel.find().count()
+        total_page = math.ceil(total_vacancies / page_size)
+
+
+        vacancies = await ShipModel.find().skip(skip).limit(limit).to_list()
+
         return vacancies
 
     except HTTPException as e:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/vacancies_company/{vacancies_id}")
+@router.get("/vacancies/{vacancies_id}")
 async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         vacancies = await ShipModel.find({"_id": vacancies_id}).to_list()
 
-        company = await CompanyModel.find_one({'vacancies.id': vacancies_id})
+        company = await company_model.find_one({'vacancies.id': vacancies_id})
 
         if not company:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия по данной компании не доступна")

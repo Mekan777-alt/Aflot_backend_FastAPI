@@ -1,8 +1,10 @@
+import datetime
+
 from beanie import Document
 from schemas.auth.auth import Optional, Worked, Position
 from models.db import db
 from pydantic import BaseModel, EmailStr, Field
-from typing import List
+from typing import List, ClassVar
 from beanie import PydanticObjectId, Indexed
 
 
@@ -18,13 +20,13 @@ class Favorites(BaseModel):
     id: PydanticObjectId
 
 
-class UserModel(Document):
+class user_model(Document):
     __database__ = db
     __collection__ = "User"
 
     id: PydanticObjectId = Field(None, alias="_id")
     email: Indexed(EmailStr, unique=True)
-    phone_number: str
+    phone_number: Indexed(str, unique=True)
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
@@ -35,9 +37,11 @@ class UserModel(Document):
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
+    status: Optional[str]
+    date_joined: datetime.datetime
 
 
-class CompanyModel(Document):
+class company_model(Document):
     __database__ = db
     __collection__ = "Company"
 
@@ -55,3 +59,4 @@ class CompanyModel(Document):
     favorites: Optional[List[Favorites]] = None
     black_list: Optional[List[BlackList]] = None
     vacancies: Optional[List[Vacancies]] = None
+    date_joined: datetime.datetime

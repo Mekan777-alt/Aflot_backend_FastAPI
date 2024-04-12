@@ -1,10 +1,12 @@
+import datetime
+
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse
 from starlette.routing import Route
 from starlette_admin.contrib.mongoengine import Admin, ModelView
 from mongoengine import connect, disconnect
 from mongoengine import (Document, EmailField, IntField, StringField, DateTimeField, BooleanField, DateField,
-                         EmbeddedDocument, EmbeddedDocumentField, ListField)
+                         EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField)
 from mongoengine.fields import ObjectIdField
 
 
@@ -92,6 +94,14 @@ class CompanyModel(Document):
     vacancies = ListField(EmbeddedDocumentField(Vacancies))
 
 
+class NewsModel(Document):
+    title = StringField()
+    content = StringField()
+    created_at = DateField()
+    photo_path = ImageField()
+    view_count = IntField()
+
+
 app = Starlette(
     routes=[
         Route(
@@ -116,5 +126,6 @@ admin.add_view(UserView(Auth, icon="fa fa-users"))
 admin.add_view(UserView(CompanyModel, icon="fa fa-users"))
 admin.add_view(ModelView(UserModel, icon="fa fa-users"))
 admin.add_view(ModelView(Ship, icon="fa fa-users"))
+admin.add_view(ModelView(NewsModel, icon="fa fa-blog"))
 
 admin.mount_to(app)
