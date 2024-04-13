@@ -41,6 +41,13 @@ class user_model(Document):
     date_joined: datetime.datetime
 
 
+class NotificationSettings(BaseModel):
+    send_email: bool = False
+    send_sms: bool = False
+    send_telegram: bool = False
+    mailing_notification: bool = False
+
+
 class company_model(Document):
     __database__ = db
     __collection__ = "Company"
@@ -60,3 +67,4 @@ class company_model(Document):
     black_list: Optional[List[BlackList]] = None
     vacancies: Optional[List[Vacancies]] = None
     date_joined: datetime.datetime
+    notification_settings: NotificationSettings = NotificationSettings()

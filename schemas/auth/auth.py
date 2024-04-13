@@ -5,6 +5,14 @@ from fastapi import Form
 from fastapi.security import OAuth2PasswordRequestForm
 
 
+
+class NotificationSettings(BaseModel):
+    send_email: bool = False
+    send_sms: bool = False
+    send_telegram: bool = False
+    mailing_notification: bool = False
+
+
 class Position(BaseModel):
     position_name: str
 
@@ -71,6 +79,7 @@ class CompanyCreate(BaseModel):
     company_inn: int
     company_address: str
     telegram: Optional[str] = None
+    notification: NotificationSettings = NotificationSettings()
 
 
 class CompanyRead(BaseModel):

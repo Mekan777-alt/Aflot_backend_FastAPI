@@ -105,10 +105,11 @@ async def register_company(company_data: CompanyCreate):
         hashed_password = hash_password(company_data.password, salt)
 
         company_data_dict = company_data.dict()
+        notification = company_data_dict.pop("notification")
         company_data_dict["date_joined"] = datetime.now()
 
         company = company_model(**company_data_dict)
-
+        company.notification_settings = notification
         service = AuthServices()
 
         for k, v in company_data_dict.items():
