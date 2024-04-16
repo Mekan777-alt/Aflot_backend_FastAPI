@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 from models import contact, feedback
 from schemas.contact.contact_schemas import ContactSchema
-from api.auth.auth import get_current_user
+from api.auth.config import get_current_user
 from typing import Annotated
 
 router = APIRouter()

@@ -1,10 +1,9 @@
 import datetime
-
 from beanie import Document
 from schemas.auth.auth import Optional, Worked, Position
 from models.db import db
 from pydantic import BaseModel, EmailStr, Field
-from typing import List, ClassVar
+from typing import List
 from beanie import PydanticObjectId, Indexed
 
 

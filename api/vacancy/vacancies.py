@@ -1,12 +1,10 @@
 import math
-
 from fastapi import APIRouter, Depends, HTTPException
 from models.register import company_model, Vacancies
 from beanie import PydanticObjectId
 from models.jobs import ship as ShipModel
 from starlette import status
-from api.auth.auth import get_current_user
-from starlette.responses import JSONResponse
+from api.auth.config import get_current_user
 from schemas.vacancies_company.ship import Ship, ShipRead
 from typing import Annotated
 

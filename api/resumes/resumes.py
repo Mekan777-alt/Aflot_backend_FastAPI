@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from schemas.auth import UserRead
 from typing import List
 from typing import Annotated
-from api.auth.auth import get_current_user
+from api.auth.config import get_current_user
 from models.register import user_model
 from starlette import status
 from beanie import PydanticObjectId
@@ -51,8 +51,25 @@ async def get_user_vacancy(user_id: PydanticObjectId, current_user: Annotated[di
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
+@router.post("/resumes/{user_id}/add_favorite", response_model=user_model, status_code=status.HTTP_201_CREATED)
+async def add_user_to_favorite(user_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        user_favorite = await user_model.get(user_id)
+
+        if not user_favorite:
+
+            raise HTTPException(detail="User not found", status_code=status.HTTP_404_NOT_FOUND)
+
+
+
+    except HTTPException as e:
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
+
 @router.post("/resumes/search")
-async def search_resume(title: str = Query(None), salary: int = Query(None)):
+async def search_resume(current_user: Annotated[dict, Depends(get_current_user)],
+                        title: str = Query(None), salary: int = Query(None)):
 
     try:
 

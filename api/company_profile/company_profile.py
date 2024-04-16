@@ -4,6 +4,8 @@ from starlette import status
 from beanie import PydanticObjectId
 from models import auth, company_model
 from schemas.profile.profile_company import CompanyOldSettings
+from typing import Annotated
+from api.auth.config import get_current_user
 
 router = APIRouter(
     prefix="/api/v1",
@@ -12,7 +14,7 @@ router = APIRouter(
 
 
 @router.get("/{company_id}/profile", status_code=status.HTTP_200_OK)
-async def get_company_profile(company_id: PydanticObjectId):
+async def get_company_profile(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company_data = await company_model.get(company_id)
 
@@ -28,7 +30,7 @@ async def get_company_profile(company_id: PydanticObjectId):
 
 
 @router.get("/{company_id}/profile/old_settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings)
-async def get_company_old_settings(company_id: PydanticObjectId):
+async def get_company_old_settings(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
         company = await company_model.get(company_id)
@@ -44,7 +46,8 @@ async def get_company_old_settings(company_id: PydanticObjectId):
 
 
 @router.put("/{company_id}/profile/old_settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings)
-async def save_company_profile(company_id: PydanticObjectId, request: CompanyOldSettings):
+async def save_company_profile(company_id: PydanticObjectId, request: CompanyOldSettings,
+                               current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company = await company_model.get(company_id)
         auth_model = await auth.find_one({"email": company.email})

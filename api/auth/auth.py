@@ -3,9 +3,16 @@ from typing import Optional
 from fastapi import HTTPException, Depends
 from models.db import db
 from pydantic import BaseModel
-from api.auth.config import oauth2_scheme, verify_jwt_token, pwd_context
 from datetime import datetime
 from beanie import PydanticObjectId
+from passlib.context import CryptContext
+
+
+
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256", "plaintext"],
+    deprecated="auto",
+)
 
 
 class AuthSchemas(BaseModel):
@@ -69,17 +76,3 @@ class AuthServices(AuthServiceABC):
             return False
 
         return True
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    service = AuthServices()
-
-    decoded_data = verify_jwt_token(token)
-
-    if not decoded_data:
-        raise HTTPException(status_code=400, detail="Invalid token")
-
-    user = await service.find_user(decoded_data['sub'])
-
-    if user:
-        return user

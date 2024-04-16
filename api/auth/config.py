@@ -2,8 +2,9 @@ import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import secrets
+from fastapi import Depends, HTTPException
+from api.auth.auth import AuthServices
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
@@ -16,10 +17,6 @@ SECRET_KEY = secrets.token_hex(64)
 ALGORITHM = 'HS256'
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
-pwd_context = CryptContext(
-    schemes=["pbkdf2_sha256", "plaintext"],
-    deprecated="auto",
-)
 EXPIRATION_TIME = timedelta(minutes=30)
 REFRESH_TOKEN_LIFETIME = timedelta(hours=24)
 
@@ -73,3 +70,17 @@ def convert_objectid_to_str(data, schema=None):
         return str(data)
     else:
         return data
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    service = AuthServices()
+
+    decoded_data = verify_jwt_token(token)
+
+    if not decoded_data:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    user = await service.find_user(decoded_data['sub'])
+
+    if user:
+        return user

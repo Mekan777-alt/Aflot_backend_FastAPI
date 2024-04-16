@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 from models.news import news_model
-from typing import Annotated
 from beanie import PydanticObjectId
-
+from typing import Annotated
+from api.auth.config import get_current_user
 
 router = APIRouter(
     prefix="/api/v1",
@@ -11,7 +11,7 @@ router = APIRouter(
 
 
 @router.get('/news')
-async def news(page: int = 1, page_size: int = 10):
+async def news(current_user: Annotated[dict, Depends(get_current_user)], page: int = 1, page_size: int = 10):
     try:
 
         skip = (page - 1) * page_size
@@ -30,7 +30,7 @@ async def news(page: int = 1, page_size: int = 10):
 
 
 @router.get('/news/{news_id}')
-async def get_news_id(news_id: PydanticObjectId):
+async def get_news_id(news_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
 
