@@ -8,6 +8,13 @@ from typing import List, ClassVar
 from beanie import PydanticObjectId, Indexed
 
 
+class NotificationSettings(BaseModel):
+    send_email: bool = False
+    send_sms: bool = False
+    send_telegram: bool = False
+    mailing_notification: bool = False
+
+
 class Vacancies(BaseModel):
     id: PydanticObjectId
 
@@ -39,13 +46,6 @@ class user_model(Document):
     worked: Optional[List[Worked]] = None
     status: Optional[str]
     date_joined: datetime.datetime
-
-
-class NotificationSettings(BaseModel):
-    send_email: bool = False
-    send_sms: bool = False
-    send_telegram: bool = False
-    mailing_notification: bool = False
 
 
 class company_model(Document):

@@ -8,7 +8,7 @@ from pydantic import EmailStr
 
 class ship(Document):
     __database__ = db
-    __collection__ = "Jobs"
+
 
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     position: str

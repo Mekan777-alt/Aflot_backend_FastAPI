@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
-from models import contacts, feedback
+from models import contact, feedback
 from schemas.contact.contact_schemas import ContactSchema
 from api.auth.auth import get_current_user
 from typing import Annotated
@@ -8,11 +8,11 @@ from typing import Annotated
 router = APIRouter()
 
 
-@router.get('/contacts', status_code=status.HTTP_200_OK, response_model=contacts)
+@router.get('/contacts', status_code=status.HTTP_200_OK, response_model=contact)
 async def get_contact_service(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
-        contacts_service = await contacts.find_one()
+        contacts_service = await contact.find_one()
 
         if not contacts_service:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Contact not found')

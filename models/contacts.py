@@ -2,7 +2,7 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field, EmailStr
 
 
-class contacts(Document):
+class contact(Document):
 
     __collection__ = 'contacts'
 
