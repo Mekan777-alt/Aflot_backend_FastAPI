@@ -10,10 +10,7 @@ from starlette.responses import JSONResponse
 from schemas.vacancies_company.ship import Ship, ShipRead
 from typing import Annotated
 
-router = APIRouter(
-    prefix="/api/v1",
-    tags=["Vacancies Company"]
-)
+router = APIRouter()
 
 
 @router.post("/{company_id}/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
@@ -65,7 +62,7 @@ async def get_company_vacancies(company_id: PydanticObjectId, current_user: Anno
         return vacancies_info
     except HTTPException as e:
 
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.get("/{company_id}/vacancies/{vacancy_id}", status_code=status.HTTP_200_OK)
@@ -137,7 +134,7 @@ async def get_all_vacancies(page: int = 1,
         return vacancies
 
     except HTTPException as e:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.get("/vacancies/{vacancies_id}")
@@ -159,4 +156,14 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotat
         return vacancies
 
     except HTTPException as e:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
+
+@router.post("/vacancies/{vacancies_id}")
+async def send_msg_to_company(vacancies_id: PydanticObjectId):
+    try:
+        pass
+
+    except HTTPException as e:
+
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
