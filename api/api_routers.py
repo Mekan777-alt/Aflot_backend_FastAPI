@@ -7,6 +7,7 @@ from .vacancy.routers import vacancy_company_router
 from .profile.routers import profile_router
 from .tariffs.routers import tariffs_router
 from .favorites.routers import favorite_router
+from .contacts.routers import contacts_router
 
 api_router = APIRouter()
 
@@ -18,3 +19,4 @@ api_router.include_router(vacancy_company_router)
 api_router.include_router(profile_router)
 api_router.include_router(tariffs_router)
 api_router.include_router(favorite_router)
+api_router.include_router(contacts_router)

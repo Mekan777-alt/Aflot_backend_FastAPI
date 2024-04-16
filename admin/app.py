@@ -94,6 +94,16 @@ class CompanyModel(Document):
     vacancies = ListField(EmbeddedDocumentField(Vacancies))
 
 
+class Contacts(Document):
+    email = EmailField(unique=True)
+    phone_number = StringField()
+    whatsapp = StringField()
+    inn = IntField(unique=True)
+    legal_address = StringField()
+    requisites = StringField()
+
+
+
 class NewsModel(Document):
     title = StringField()
     content = StringField()
@@ -127,5 +137,6 @@ admin.add_view(UserView(CompanyModel, icon="fa fa-users"))
 admin.add_view(ModelView(UserModel, icon="fa fa-users"))
 admin.add_view(ModelView(Ship, icon="fa fa-users"))
 admin.add_view(ModelView(NewsModel, icon="fa fa-blog"))
+admin.add_view(ModelView(Contacts, icon="fa fa-users"))
 
 admin.mount_to(app)
