@@ -119,6 +119,11 @@ class NewsModel(Document):
     view_count = IntField()
 
 
+class RealHistory(Document):
+    title = StringField()
+    content = StringField()
+
+
 app = Starlette(
     routes=[
         Route(
@@ -147,5 +152,6 @@ admin.add_view(ModelView(NewsModel, icon="fa fa-blog"))
 admin.add_view(ModelView(Contact, icon="fa fa-users"))
 admin.add_view(ModelView(Vessel, icon="fa fa-users"))
 admin.add_view(ModelView(Position, icon="fa fa-users"))
+admin.add_view(ModelView(RealHistory, icon="fa fa-blog"))
 
 admin.mount_to(app)

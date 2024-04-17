@@ -157,7 +157,7 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotat
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/vacancies/{vacancies_id}")
+@router.post("/vacancies/{vacancies_id}/add_favorite")
 async def send_msg_to_company(vacancies_id: PydanticObjectId):
     try:
         pass
@@ -165,3 +165,14 @@ async def send_msg_to_company(vacancies_id: PydanticObjectId):
     except HTTPException as e:
 
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
+
+@router.post("/vacancies/{vacancies_id}/add_blacklist", status_code=status.HTTP_201_CREATED)
+async def add_blacklist(vacancies_id: PydanticObjectId):
+    try:
+        pass
+
+    except HTTPException as e:
+
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+

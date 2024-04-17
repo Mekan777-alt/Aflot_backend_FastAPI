@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from beanie import init_beanie
-from models import db, user_model, company_model, auth, ship, news_model, contact, feedback, vessel, position
+from models import db, user_model, company_model, auth, ship, news_model, contact, feedback, vessel, position, real_history
 from api.api_routers import api_router
 from admin.app import admin, app as admin_app
 
@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
             feedback,
             position,
             vessel,
+            real_history,
         ],
     )
     yield
