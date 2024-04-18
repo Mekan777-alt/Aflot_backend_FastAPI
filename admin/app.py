@@ -124,6 +124,36 @@ class RealHistory(Document):
     content = StringField()
 
 
+class SwimsTariffs(Document):
+    status = StringField()
+    period = StringField()
+    cost = IntField()
+
+
+class ListDescriptionTariffs(EmbeddedDocument):
+    number = IntField()
+    description = StringField()
+
+
+class DescriptionTariffs(Document):
+    title = StringField()
+    description_list = ListField(EmbeddedDocumentField(ListDescriptionTariffs))
+
+
+class Tariffs(EmbeddedDocument):
+    title = StringField()
+    count_publications = IntField()
+    count_possibilities = IntField()
+    price = IntField()
+
+
+class CompanyTariffs(Document):
+    description = ListField(EmbeddedDocumentField(Tariffs))
+
+
+
+
+
 app = Starlette(
     routes=[
         Route(
@@ -153,5 +183,8 @@ admin.add_view(ModelView(Contact, icon="fa fa-users"))
 admin.add_view(ModelView(Vessel, icon="fa fa-users"))
 admin.add_view(ModelView(Position, icon="fa fa-users"))
 admin.add_view(ModelView(RealHistory, icon="fa fa-blog"))
+admin.add_view(ModelView(SwimsTariffs, icon="fa fa-users"))
+admin.add_view(ModelView(DescriptionTariffs, icon="fa fa-users"))
+admin.add_view(ModelView(CompanyTariffs, icon="fa fa-users"))
 
 admin.mount_to(app)
