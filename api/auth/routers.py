@@ -4,7 +4,7 @@ from .register import router
 
 auth_router = APIRouter(
     prefix="/api/v1",
-    tags=["Authentication"]
+    tags=["Авторизация и Регистрация"]
 )
 
 auth_router.include_router(router)

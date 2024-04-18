@@ -2,9 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 from models import swims_tariffs, description_tariffs, company_tariffs
 
-router = APIRouter(
-    prefix="/api/v1",
-)
+router = APIRouter()
 
 
 @router.get("/get_tariffs/company")

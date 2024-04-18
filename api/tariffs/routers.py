@@ -3,7 +3,8 @@ from .get_tariffs import router
 
 
 tariffs_router = APIRouter(
-    tags=['Tariffs'],
+    prefix="/api/v1",
+    tags=['Тарифы компании и моряка'],
 )
 
 tariffs_router.include_router(router)

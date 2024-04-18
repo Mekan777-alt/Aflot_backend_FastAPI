@@ -9,9 +9,7 @@ from starlette import status
 from beanie import PydanticObjectId
 
 
-router = APIRouter(
-    prefix="/api/v1"
-)
+router = APIRouter()
 
 
 @router.get("/resumes", response_model=List[user_model])

@@ -7,10 +7,7 @@ from schemas.profile.profile_company import CompanyOldSettings
 from typing import Annotated
 from api.auth.config import get_current_user
 
-router = APIRouter(
-    prefix="/api/v1",
-    tags=["Company Profile"],
-)
+router = APIRouter()
 
 
 @router.get("/{company_id}/profile", status_code=status.HTTP_200_OK)

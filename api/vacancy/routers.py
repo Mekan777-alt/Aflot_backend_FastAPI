@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 vacancy_company_router = APIRouter(
     prefix="/api/v1",
-    tags=["Vacancies Company"]
+    tags=["Вакансии компаний"]
 )
 
 vacancy_company_router.include_router(create_router)

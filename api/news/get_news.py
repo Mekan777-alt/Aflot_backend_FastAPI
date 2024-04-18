@@ -5,9 +5,7 @@ from beanie import PydanticObjectId
 from typing import Annotated
 from api.auth.config import get_current_user
 
-router = APIRouter(
-    prefix="/api/v1",
-)
+router = APIRouter()
 
 
 @router.get('/news')

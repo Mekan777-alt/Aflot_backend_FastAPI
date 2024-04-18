@@ -1,6 +1,9 @@
-from .company_profile import router as profile_router
+from .company_profile import router
 from fastapi import APIRouter
 
-profile = APIRouter()
+profile_router = APIRouter(
+    prefix="/api/v1",
+    tags=["Профиль компании"],
+)
 
-profile.include_router(profile_router)
+profile_router.include_router(router)

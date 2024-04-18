@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from .get_news import router
 
 news_router = APIRouter(
-    tags=["News"],
+    prefix="/api/v1",
+    tags=["Страница новостей"],
 )
 
 
