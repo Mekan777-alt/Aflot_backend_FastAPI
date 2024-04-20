@@ -1,6 +1,5 @@
 import math
 from fastapi import APIRouter, HTTPException, Depends, Query
-from schemas.auth import UserRead
 from typing import List
 from typing import Annotated
 from api.auth.config import get_current_user
@@ -32,7 +31,7 @@ async def get_all_vacancies_user(current_user: Annotated[dict, Depends(get_curre
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/resumes/{user_id}", response_model=UserRead)
+@router.get("/resumes/{sailor_id}", response_model=user_model)
 async def get_user_vacancy(user_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -49,7 +48,7 @@ async def get_user_vacancy(user_id: PydanticObjectId, current_user: Annotated[di
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/{user_id}/add_favorite", response_model=user_model, status_code=status.HTTP_201_CREATED)
+@router.post("/resumes/{sailor_id}/add_favorite", response_model=user_model, status_code=status.HTTP_201_CREATED)
 async def add_user_to_favorite(user_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 

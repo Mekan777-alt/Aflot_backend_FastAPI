@@ -29,31 +29,14 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: str = 'Моряк'
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
-    status: Optional[str] = None
+    notification_settings: NotificationSettings
 
-
-class UserRead(BaseModel):
-    id: PydanticObjectId
-    email: EmailStr
-    phone_number: str
-    first_name: str
-    last_name: str
-    patronymic: Optional[str] = None
-    role: Optional[str] = None
-    country: Optional[str] = None
-    region: Optional[str] = None
-    city: Optional[str] = None
-    telegram: Optional[str] = None
-    positions: Optional[List[Position]] = None
-    worked: Optional[List[Worked]] = None
-    status: Optional[str] = None
 
 
 class UserAuthenticate(OAuth2PasswordRequestForm):
@@ -73,24 +56,9 @@ class CompanyCreate(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: str = 'Компания'
     phone_number: str
     company_name: str
     company_inn: int
     company_address: str
     telegram: Optional[str] = None
-    notification: NotificationSettings = NotificationSettings()
-
-
-class CompanyRead(BaseModel):
-    id: PydanticObjectId
-    email: EmailStr
-    first_name: str
-    last_name: str
-    patronymic: Optional[str] = None
-    role: Optional[str] = None
-    phone_number: str
-    company_name: str
-    company_inn: int
-    company_address: str
-    telegram: Optional[str] = None
+    notification_settings: NotificationSettings

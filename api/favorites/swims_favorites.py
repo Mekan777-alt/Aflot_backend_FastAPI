@@ -8,7 +8,7 @@ from api.auth.config import get_current_user
 router = APIRouter()
 
 
-@router.get('/{swims_id}/favorite/vacancies')
+@router.get('/{sailor_id}/favorite/vacancies')
 async def get_favorite_vacancies(swims_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -18,7 +18,7 @@ async def get_favorite_vacancies(swims_id: PydanticObjectId, current_user: Annot
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get('/{swims_id}/favorite/company')
+@router.get('/{sailor_id}/favorite/company')
 async def get_favorite_company(swims_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 

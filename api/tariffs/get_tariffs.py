@@ -21,7 +21,7 @@ async def get_tariffs_company():
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/get_tariffs/swims", status_code=status.HTTP_200_OK)
+@router.get("/get_tariffs/sailor", status_code=status.HTTP_200_OK)
 async def get_tariffs_swims():
     try:
 

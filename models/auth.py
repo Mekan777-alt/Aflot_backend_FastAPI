@@ -1,16 +1,14 @@
 from datetime import datetime
-from beanie import Document
-from beanie import Indexed
-from beanie import PydanticObjectId
-from pydantic import EmailStr, Field
-from typing import Optional
+from beanie import Document, Indexed, PydanticObjectId
+from pydantic import EmailStr, Field, BaseModel
+from typing import Optional, List
 
 
 class auth(Document):
-
     __collection__ = 'auth'
 
     id: PydanticObjectId = Field(None, alias="_id")
+    resumeID: PydanticObjectId = Field(None, alias="resumeID")
     email: Indexed(EmailStr, unique=True)
     inn: Optional[int] = None
     phone_number: Indexed(str, unique=True)
@@ -19,5 +17,6 @@ class auth(Document):
     is_active: bool
     is_superuser: bool
     is_verified: bool
-    last_login: datetime
+    last_login: Optional[datetime] = None
+    date_joined: datetime
     salt: str

@@ -5,24 +5,25 @@ from models.register import user_model, company_model
 from models.auth import auth as auth_model
 from .config import (generate_jwt_token, generate_salt, hash_password, oauth2_scheme,
                      verify_jwt_token, convert_objectid_to_str)
-from schemas.auth.auth import UserCreate, UserRead, CompanyRead, CompanyCreate
+from schemas.auth.auth import UserCreate, CompanyCreate
 from starlette import status
 from api.auth.auth import AuthServices, AuthSchemas
 from schemas.auth.auth import Token
 from fastapi.security import OAuth2PasswordRequestForm
+from beanie import PydanticObjectId
 
 router = APIRouter()
 
 
-@router.post("/register/user", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post("/register/user", response_model=user_model, status_code=status.HTTP_201_CREATED)
 async def register_user(user_data: UserCreate):
     try:
 
-        if await user_model.find_one({"email": user_data.email}):
+        if await auth_model.find_one({"email": user_data.email}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
-        if await user_model.find_one({"phone_number": user_data.phone_number}):
+        if await auth_model.find_one({"phone_number": user_data.phone_number}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
 
@@ -33,67 +34,43 @@ async def register_user(user_data: UserCreate):
         salt = generate_salt()
         hashed_password = hash_password(user_data.password, salt)
 
-        user_data_dict = user_data.dict()
-        user_data_dict["date_joined"] = datetime.now()
+        user = user_model(**user_data.dict())
 
-        user = user_model(**user_data_dict)
-
-        service = AuthServices()
-
-        for k, v in user_data_dict.items():
-
-            if k == 'email':
-
-                auth_user = await service.check_user(v)
-
-                if auth_user:
-
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-
-            elif k == 'phone_number':
-
-                auth_user = await service.check_user(v)
-
-                if auth_user:
-
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
-            else:
-
-                pass
+        await user.create()
 
         auth = auth_model(
+            resumeID=user.id,
             email=user_data.email,
             hashed_password=hashed_password,
             salt=salt,
             phone_number=user_data.phone_number,
-            role=user_data.role,
+            role="Моряк",
             is_active=True,
             is_superuser=False,
             is_verified=False,
-            last_login=datetime.now(),
+            date_joined=datetime.now(),
         )
 
         await auth.create()
-        await user.create()
 
         return user
     except HTTPException as e:
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/register/company", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
+@router.post("/register/company", response_model=company_model, status_code=status.HTTP_201_CREATED)
 async def register_company(company_data: CompanyCreate):
     try:
 
-        if await company_model.find_one({"email": company_data.email}):
+        if await auth_model.find_one({"email": company_data.email}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
-        if await company_model.find_one({"phone_number": company_data.phone_number}):
+        if await auth_model.find_one({"phone_number": company_data.phone_number}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
 
-        if await company_model.find_one({"company_inn": company_data.company_inn}):
+        if await auth_model.find_one({"company_inn": company_data.company_inn}):
 
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
 
@@ -104,58 +81,24 @@ async def register_company(company_data: CompanyCreate):
         salt = generate_salt()
         hashed_password = hash_password(company_data.password, salt)
 
-        company_data_dict = company_data.dict()
-        notification = company_data_dict.pop("notification")
-        company_data_dict["date_joined"] = datetime.now()
+        company = company_model(**company_data.dict())
 
-        company = company_model(**company_data_dict)
-        company.notification_settings = notification
-        service = AuthServices()
-
-        for k, v in company_data_dict.items():
-
-            if k == 'email':
-
-                auth_user = await service.check_user(v)
-
-                if auth_user:
-
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-
-            elif k == 'phone_number':
-
-                auth_user = await service.check_user(v)
-
-                if auth_user:
-
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
-
-            elif k == 'company_inn':
-
-                auth_user = await service.check_user(v)
-
-                if auth_user:
-
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
-
-            else:
-
-                pass
+        await company.create()
 
         auth = auth_model(
+            resumeID=company.id,
             email=company_data.email,
             hashed_password=hashed_password,
             salt=salt,
             inn=company_data.company_inn,
             phone_number=company_data.phone_number,
-            role=company_data.role,
+            role="Компания",
             is_active=True,
             is_superuser=False,
             is_verified=False,
-            last_login=datetime.now(),
+            date_joined=datetime.now(),
         )
 
-        await company.create()
         await auth.create()
 
         return company

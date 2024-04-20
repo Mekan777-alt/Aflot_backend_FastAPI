@@ -22,13 +22,20 @@ class BlackList(BaseModel):
     id: PydanticObjectId
 
 
-class Favorites(BaseModel):
+class FavoritesSailor(BaseModel):
+    id: PydanticObjectId
+
+
+class FavoritesCompany(BaseModel):
+    id: PydanticObjectId
+
+
+class FavoritesVacancies(BaseModel):
     id: PydanticObjectId
 
 
 class user_model(Document):
     __database__ = db
-    __collection__ = "User"
 
     id: PydanticObjectId = Field(None, alias="_id")
     email: Indexed(EmailStr, unique=True)
@@ -36,34 +43,32 @@ class user_model(Document):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: str
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
-    status: Optional[str]
-    date_joined: datetime.datetime
+    status: Optional[str] = None
+    favorites_company: Optional[List[FavoritesCompany]] = None
+    favorites_vacancies: Optional[List[FavoritesVacancies]] = None
+    notification_settings: NotificationSettings
 
 
 class company_model(Document):
     __database__ = db
-    __collection__ = "Company"
 
     id: PydanticObjectId = Field(None, alias="_id")
-    email: Indexed(EmailStr, unique=True)
-    phone_number: Indexed(str, unique=True)
+    email: EmailStr
+    phone_number: str
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    role: str
     telegram: Optional[str] = None
     company_name: str
     company_inn: Indexed(int, unique=True)
     company_address: str
-    favorites: Optional[List[Favorites]] = None
-    black_list: Optional[List[BlackList]] = None
+    favorites_resume: Optional[List[FavoritesSailor]] = None
+    black_list_resume: Optional[List[BlackList]] = None
     vacancies: Optional[List[Vacancies]] = None
-    date_joined: datetime.datetime
-    notification_settings: NotificationSettings = NotificationSettings()
+    notification_settings: NotificationSettings

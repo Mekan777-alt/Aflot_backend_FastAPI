@@ -136,29 +136,48 @@ async def get_all_vacancies(page: int = 1,
 
 
 @router.get("/vacancies/{vacancies_id}")
-async def get_vacancies_id(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_vacancies_id(vacancies_id: PydanticObjectId):
     try:
 
-        vacancies = await ShipModel.find({"_id": vacancies_id}).to_list()
+        data = []
 
+        vacancies = await ShipModel.find_one({"_id": vacancies_id})
+
+        if not vacancies:
+
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная вакансия не найдена")
+
+        data.append(vacancies)
         company = await company_model.find_one({'vacancies.id': vacancies_id})
 
         if not company:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия по данной компании не доступна")
 
-        data = {
+        company_info = {
+            "id": str(PydanticObjectId(company.id)),
             "company_name": company.company_name,
-        }
-        vacancies.append(data)
 
-        return vacancies
+        }
+        data.append(company_info)
+
+        return data
 
     except HTTPException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.post("/vacancies/{vacancies_id}/add_favorite")
-async def send_msg_to_company(vacancies_id: PydanticObjectId):
+async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId):
+    try:
+        pass
+
+    except HTTPException as e:
+
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
+
+@router.post("/vacancies/{vacancies_id}/add_favorite/company/{company_id}")
+async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: PydanticObjectId):
     try:
         pass
 

@@ -63,6 +63,14 @@ class Favorites(EmbeddedDocument):
     id = ObjectIdField
 
 
+class FavoritesCompany(EmbeddedDocument):
+    id = ObjectIdField
+
+
+class FavoritesVacancies(EmbeddedDocument):
+    id = ObjectIdField
+
+
 class UserModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField()
@@ -76,6 +84,8 @@ class UserModel(Document):
     telegram = StringField()
     positions = ListField(EmbeddedDocumentField(Position))
     worked = ListField(EmbeddedDocumentField(Worked))
+    favorites_company: ListField(EmbeddedDocumentField(FavoritesCompany))
+    favorites_vacancies: ListField(EmbeddedDocumentField(FavoritesVacancies))
 
 
 class CompanyModel(Document):
