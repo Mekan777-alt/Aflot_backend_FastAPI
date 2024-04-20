@@ -1,26 +1,28 @@
 import math
 from fastapi import APIRouter, Depends, HTTPException
-from models.register import company_model, Vacancies
+from models.register import Vacancies
+from models import company_model, auth
 from beanie import PydanticObjectId
 from models.jobs import ship as ShipModel
 from starlette import status
 from api.auth.config import get_current_user
 from schemas.vacancies_company.ship import Ship, ShipRead
-from typing import Annotated
+from typing import Annotated, Optional
 
 router = APIRouter()
 
 
-@router.post("/{company_id}/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
-async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObjectId,
+@router.post("/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
+async def create_vacancies_by_company(jobs_create: Ship,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
+        company_id = current_user.get("id")
+        company_info = await auth.get(company_id)
 
-        company_check = await company_model.get(company_id)
-
-        if not company_check:
+        if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
+        company = await company_model.get(company_info.resumeID)
         jobs_create.status = 'активная вакансия'
         new_vacancy = ShipModel(**jobs_create.dict())
 
@@ -28,11 +30,11 @@ async def create_vacancies_by_company(jobs_create: Ship, company_id: PydanticObj
 
         vacancy = Vacancies(id=new_vacancy.id)
 
-        if not company_check.vacancies:
-            company_check.vacancies = []
+        if not company.vacancies:
+            company.vacancies = []
 
-        company_check.vacancies.append(vacancy)
-        await company_check.save()
+        company.vacancies.append(vacancy)
+        await company.save()
 
         return new_vacancy
     except HTTPException as e:
@@ -88,7 +90,7 @@ async def get_vacancies_by_company(company_id: PydanticObjectId, vacancy_id: Pyd
 
 @router.put("/{company_id}/vacancies/{vacancy_id}", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
 async def update_vacancies_by_company(request: Ship, company_id: PydanticObjectId, vacancy_id: PydanticObjectId,
-                                      current_user: Annotated[dict, Depends(get_current_user)]):
+                                      current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
         request = {k: v for k, v in request.dict().items() if v is not None}

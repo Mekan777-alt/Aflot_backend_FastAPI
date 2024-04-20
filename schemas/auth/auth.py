@@ -1,7 +1,5 @@
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr
-from beanie import PydanticObjectId
-from fastapi import Form
 from fastapi.security import OAuth2PasswordRequestForm
 
 
