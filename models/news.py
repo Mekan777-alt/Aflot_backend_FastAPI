@@ -7,5 +7,5 @@ class news_model(Document):
     title: str
     content: str
     created_at: Optional[date]
-    photo_path: Optional[PydanticObjectId]
+    photo_path: Optional[PydanticObjectId] = None
     view_count: Optional[int]
