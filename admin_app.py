@@ -13,7 +13,7 @@ import os
 
 
 class Auth(Document):
-    resumeID = ObjectIdField
+    resumeID = ObjectIdField()
     email = EmailField(unique=True)
     inn = IntField(unique=True)
     phone_number = StringField(unique=True)
@@ -56,23 +56,23 @@ class Worked(EmbeddedDocument):
 
 
 class Vacancies(EmbeddedDocument):
-    id = ObjectIdField
+    id = ObjectIdField()
 
 
 class BlackList(EmbeddedDocument):
-    id = ObjectIdField
+    id = ObjectIdField()
 
 
 class Favorites(EmbeddedDocument):
-    id = ObjectIdField
+    id = ObjectIdField()
 
 
 class FavoritesCompany(EmbeddedDocument):
-    id = ObjectIdField
+    id = ObjectIdField()
 
 
 class FavoritesVacancies(EmbeddedDocument):
-    id = ObjectIdField
+    id = ObjectIdField()
 
 
 class NotificationSettings(EmbeddedDocument):
@@ -95,8 +95,8 @@ class UserModel(Document):
     positions = ListField(EmbeddedDocumentField(Position))
     worked = ListField(EmbeddedDocumentField(Worked))
     status = StringField()
-    favorites_company: ListField(EmbeddedDocumentField(FavoritesCompany))
-    favorites_vacancies: ListField(EmbeddedDocumentField(FavoritesVacancies))
+    favorites_company = ListField(EmbeddedDocumentField(FavoritesCompany))
+    favorites_vacancies = ListField(EmbeddedDocumentField(FavoritesVacancies))
     notification_settings = EmbeddedDocumentField(NotificationSettings)
 
 
@@ -185,7 +185,8 @@ app = Starlette(
             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
         )
     ],
-    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME, password=DB_PASSWORD)],
+    on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017, username=DB_USERNAME,
+                                password=DB_PASSWORD)],
     on_shutdown=[lambda: disconnect()],
 )
 
