@@ -185,7 +185,7 @@ app = Starlette(
             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
         )
     ],
-    on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017, username=DB_USERNAME,
+    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME,
                                 password=DB_PASSWORD)],
     on_shutdown=[lambda: disconnect()],
 )
