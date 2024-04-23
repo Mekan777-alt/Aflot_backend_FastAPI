@@ -14,6 +14,7 @@ import os
 
 class Auth(Document):
     email = EmailField(unique=True)
+    resumeID = ObjectIdField
     inn = IntField(unique=True)
     phone_number = StringField(unique=True)
     hashed_password = StringField()
@@ -73,21 +74,29 @@ class FavoritesVacancies(EmbeddedDocument):
     id = ObjectIdField
 
 
+class NotificationSettings(EmbeddedDocument):
+    send_email = BooleanField()
+    send_sms = BooleanField()
+    send_telegram = BooleanField()
+    mailing_notification = BooleanField()
+
+
 class UserModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField()
     first_name = StringField()
     last_name = StringField()
     patronymic = StringField()
-    role = StringField()
     country = StringField()
     region = StringField()
     city = StringField()
     telegram = StringField()
     positions = ListField(EmbeddedDocumentField(Position))
     worked = ListField(EmbeddedDocumentField(Worked))
+    status = StringField()
     favorites_company: ListField(EmbeddedDocumentField(FavoritesCompany))
     favorites_vacancies: ListField(EmbeddedDocumentField(FavoritesVacancies))
+    notification_settings = EmbeddedDocumentField(NotificationSettings)
 
 
 class CompanyModel(Document):
@@ -96,14 +105,14 @@ class CompanyModel(Document):
     first_name = StringField()
     last_name = StringField()
     patronymic = StringField()
-    role = StringField()
     telegram = StringField()
     company_name = StringField()
     company_inn = IntField(unique=True)
     company_address = StringField()
-    favorites = ListField(EmbeddedDocumentField(Favorites))
-    black_list = ListField(EmbeddedDocumentField(BlackList))
+    favorites_resume = ListField(EmbeddedDocumentField(Favorites))
+    black_list_resume = ListField(EmbeddedDocumentField(BlackList))
     vacancies = ListField(EmbeddedDocumentField(Vacancies))
+    notification_settings = EmbeddedDocumentField(NotificationSettings)
 
 
 class Contact(Document):
