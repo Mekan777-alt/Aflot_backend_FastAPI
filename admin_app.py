@@ -13,8 +13,8 @@ import os
 
 
 class Auth(Document):
-    email = EmailField(unique=True)
     resumeID = ObjectIdField
+    email = EmailField(unique=True)
     inn = IntField(unique=True)
     phone_number = StringField(unique=True)
     hashed_password = StringField()
@@ -23,6 +23,7 @@ class Auth(Document):
     is_superuser = BooleanField()
     is_verified = BooleanField()
     last_login = DateTimeField()
+    date_joined = DateTimeField()
     salt = StringField()
 
 
