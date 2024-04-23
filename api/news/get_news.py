@@ -15,7 +15,13 @@ async def news(current_user: Annotated[dict, Depends(get_current_user)], page: i
         skip = (page - 1) * page_size
         limit = page_size
 
-        total_news = await news_model.find().skip(skip).limit(limit).to_list()
+        projection = {
+            "photo_path": {
+                "$ifNull": ["$photo_path", None]
+            }
+        }
+
+        total_news = await news_model.find({}, projection).skip(skip).limit(limit).to_list()
 
         if not total_news:
 
