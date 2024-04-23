@@ -26,6 +26,16 @@ services:
     networks:
       - mynetwork
 
+  starlette_admin:
+    container_name: starlette_admin
+    build:
+      context: .
+      dockerfile: ./Dockerfile_admin
+    ports:
+      - "8001:8000"
+    networks:
+      - mynetwork
+
 networks:
   mynetwork:
     driver: bridge

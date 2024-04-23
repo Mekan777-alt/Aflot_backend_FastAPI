@@ -171,12 +171,12 @@ app = Starlette(
             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
         )
     ],
-    on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017)],
+    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017)],
     on_shutdown=[lambda: disconnect()],
 )
 
 # Create admin
-admin = Admin(title="Admin: MongoEngine")
+admin = Admin(title="Admin: AFLOT ADMIN")
 
 
 # Add views
