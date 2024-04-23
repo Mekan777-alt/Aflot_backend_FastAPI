@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.get("/real-history", status_code=status.HTTP_200_OK, response_model=List[real_history])
-async def get_history(current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_history():
     try:
 
         history = await real_history.find().to_list()

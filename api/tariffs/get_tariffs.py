@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
+from typing import List
 from models import swims_tariffs, description_tariffs, company_tariffs
 
 router = APIRouter()
 
 
-@router.get("/get_tariffs/company")
+@router.get("/get_tariffs/company", status_code=status.HTTP_200_OK, response_model=List[company_tariffs])
 async def get_tariffs_company():
     try:
 

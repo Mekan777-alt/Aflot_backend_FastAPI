@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get('/contacts', status_code=status.HTTP_200_OK, response_model=contact)
-async def get_contact_service(current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_contact_service():
     try:
 
         contacts_service = await contact.find_one()
@@ -24,7 +24,7 @@ async def get_contact_service(current_user: Annotated[dict, Depends(get_current_
 
 
 @router.post('/feedback', status_code=status.HTTP_201_CREATED, response_model=feedback)
-async def send_feedback(request: ContactSchema, current_user: Annotated[dict, Depends(get_current_user)]):
+async def send_feedback(request: ContactSchema):
     try:
 
         new_feedback = feedback(**request.dict())
