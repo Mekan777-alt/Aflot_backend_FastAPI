@@ -9,28 +9,28 @@ router = APIRouter()
 
 
 @router.get('/news')
-async def news(current_user: Annotated[dict, Depends(get_current_user)], page: int = 1, page_size: int = 10):
+async def news(current_user: dict = Depends(get_current_user), page: int = 1, page_size: int = 10):
     try:
-
         skip = (page - 1) * page_size
         limit = page_size
 
         projection = {
-            "photo_path": {
-                "$ifNull": ["$photo_path", None]
-            }
+            "photo_path": 1
         }
 
         total_news = await news_model.find({}, projection).skip(skip).limit(limit).to_list()
 
-        if not total_news:
+        for news_item in total_news:
+            if "photo_path" in news_item:
+                news_item["photo_path"] = str(news_item["photo_path"])
 
+        if not total_news:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No news')
 
         return total_news
 
-    except HTTPException as e:
-        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get('/news/{news_id}')
