@@ -8,6 +8,8 @@ from mongoengine import connect, disconnect
 from mongoengine import (Document, EmailField, IntField, StringField, DateTimeField, BooleanField, DateField,
                          EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField)
 from mongoengine.fields import ObjectIdField
+from dotenv import load_dotenv
+import os
 
 
 class Auth(Document):
@@ -161,8 +163,10 @@ class CompanyTariffs(Document):
     description = ListField(EmbeddedDocumentField(Tariffs))
 
 
+load_dotenv()
 
-
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 app = Starlette(
     routes=[
@@ -171,7 +175,7 @@ app = Starlette(
             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
         )
     ],
-    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017)],
+    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME, password=DB_PASSWORD)],
     on_shutdown=[lambda: disconnect()],
 )
 
