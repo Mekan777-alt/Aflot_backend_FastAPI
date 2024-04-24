@@ -36,6 +36,7 @@ async def register_user(user_data: UserCreate):
 
         user = user_model(**user_data.dict())
 
+        await user.create_default()
         await user.create()
 
         auth = auth_model(

@@ -2,8 +2,6 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 
-
-
 class NotificationSettings(BaseModel):
     send_email: bool = False
     send_sms: bool = False

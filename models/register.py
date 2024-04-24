@@ -35,41 +35,41 @@ class FavoritesVacancies(BaseModel):
 
 
 class MainDocumentsUsers(BaseModel):
-    foreign_passport: date
-    seafarers_ID_card: date
-    diploma: date
-    initial_safety_training: date
-    designated_safeguarding_responsibilities: date
-    dinghy_and_raft_specialist: date
-    fighting_fire_with_an_expanded_program: date
-    providing_first_aid: date
-    prevention_of_marine_pollution: date
-    tanker_certificate: date
-    occupational_health_and_safety: date
-    medical_commission: date
+    foreign_passport: Optional[date] = None
+    seafarers_ID_card: Optional[date] = None
+    diploma: Optional[date] = None
+    initial_safety_training: Optional[date] = None
+    designated_safeguarding_responsibilities: Optional[date] = None
+    dinghy_and_raft_specialist: Optional[date] = None
+    fighting_fire_with_an_expanded_program: Optional[date] = None
+    providing_first_aid: Optional[date] = None
+    prevention_of_marine_pollution: Optional[date] = None
+    tanker_certificate: Optional[date] = None
+    occupational_health_and_safety: Optional[date] = None
+    medical_commission: Optional[date] = None
 
 
 class ShipwrightsPapers(BaseModel):
-    gmssb: date
-    eknis: date
-    rlt: date
-    sarp: date
+    gmssb: Optional[date] = None
+    eknis: Optional[date] = None
+    rlt: Optional[date] = None
+    sarp: Optional[date] = None
 
 
 class AdditionalDocuments(BaseModel):
-    isolation_breathing_apparatus: date
-    naval_training: date
-    transportation_safety: date
-    tanker_certificate: date
+    isolation_breathing_apparatus: Optional[date] = None
+    naval_training: Optional[date] = None
+    transportation_safety: Optional[date] = None
+    tanker_certificate: Optional[date] = None
 
 
 class WorkExperience(BaseModel):
-    shipowner: str
-    type_of_vessel: str
-    ships_name: str
-    position: str
-    period_of_work_from: date
-    period_of_work_to: date
+    shipowner: Optional[str] = None
+    type_of_vessel: Optional[str] = None
+    ships_name: Optional[str] = None
+    position: Optional[str] = None
+    period_of_work_from: Optional[date] = None
+    period_of_work_to: Optional[date] = None
 
 
 class user_model(Document):
@@ -95,6 +95,45 @@ class user_model(Document):
     shipwrights_papers: Optional[ShipwrightsPapers] = None
     additional_documents: Optional[AdditionalDocuments] = None
     working_experience: Optional[WorkExperience] = None
+
+    async def create_default(self):
+        self.main_documents = MainDocumentsUsers(
+            foreign_passport=None,
+            seafarers_ID_card=None,
+            diploma=None,
+            initial_safety_training=None,
+            designated_safeguarding_responsibilities=None,
+            dinghy_and_raft_specialist=None,
+            fighting_fire_with_an_expanded_program=None,
+            providing_first_aid=None,
+            prevention_of_marine_pollution=None,
+            tanker_certificate=None,
+            occupational_health_and_safety=None,
+            medical_commission=None,
+        )
+
+        self.shipwrights_papers = ShipwrightsPapers(
+            gmssb=None,
+            eknis=None,
+            rlt=None,
+            sarp=None,
+        )
+
+        self.additional_documents = AdditionalDocuments(
+            isolation_breathing_apparatus=None,
+            naval_training=None,
+            transportation_safety=None,
+            tanker_certificate=None,
+        )
+
+        self.working_experience = WorkExperience(
+            shipowner=None,
+            type_of_vessel=None,
+            ships_name=None,
+            position=None,
+            period_of_work_from=None,
+            period_of_work_to=None,
+        )
 
 
 class company_model(Document):
