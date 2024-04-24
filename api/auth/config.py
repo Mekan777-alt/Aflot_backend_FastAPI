@@ -50,7 +50,7 @@ def generate_jwt_token(data: dict):
 
     refresh_token = jwt.encode(refresh_data, SECRET_KEY, algorithm=ALGORITHM)
 
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return {"access_token": access_token, "refresh_token": refresh_token, "info": data}
 
 
 def verify_jwt_token(token: str):

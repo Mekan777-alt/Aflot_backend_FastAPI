@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 from fastapi import HTTPException, Depends
 from models.db import db
 from pydantic import BaseModel
