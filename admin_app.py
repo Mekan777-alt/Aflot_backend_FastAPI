@@ -82,6 +82,44 @@ class NotificationSettings(EmbeddedDocument):
     mailing_notification = BooleanField()
 
 
+class MainDocumentsUsers(EmbeddedDocument):
+    foreign_passport = DateField()
+    seafarers_ID_card = DateField()
+    diploma = DateField()
+    initial_safety_training = DateField()
+    designated_safeguarding_responsibilities = DateField()
+    dinghy_and_raft_specialist = DateField()
+    fighting_fire_with_an_expanded_program = DateField()
+    providing_first_aid = DateField()
+    prevention_of_marine_pollution = DateField()
+    tanker_certificate = DateField()
+    occupational_health_and_safety = DateField()
+    medical_commission = DateField()
+
+
+class ShipwrightsPapers(EmbeddedDocument):
+    gmssb = DateField()
+    eknis = DateField()
+    rlt = DateField()
+    sarp = DateField()
+
+
+class AdditionalDocuments(EmbeddedDocument):
+    isolation_breathing_apparatus = DateField()
+    naval_training = DateField()
+    transportation_safety = DateField()
+    tanker_certificate = DateField()
+
+
+class WorkExperience(EmbeddedDocument):
+    shipowner = StringField()
+    type_of_vessel = StringField()
+    ships_name = StringField()
+    position = StringField()
+    period_of_work_from = DateField()
+    period_of_work_to = DateField()
+
+
 class UserModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField()
@@ -98,6 +136,10 @@ class UserModel(Document):
     favorites_company = ListField(EmbeddedDocumentField(FavoritesCompany))
     favorites_vacancies = ListField(EmbeddedDocumentField(FavoritesVacancies))
     notification_settings = EmbeddedDocumentField(NotificationSettings)
+    main_documents = EmbeddedDocumentField(MainDocumentsUsers)
+    shipwrights_papers = EmbeddedDocumentField(ShipwrightsPapers)
+    additional_documents = EmbeddedDocumentField(AdditionalDocuments)
+    working_experience = EmbeddedDocumentField(WorkExperience)
 
 
 class CompanyModel(Document):
