@@ -12,8 +12,7 @@ router = APIRouter()
 
 
 @router.get("/resumes", response_model=List[user_model])
-async def get_all_vacancies_user(current_user: Annotated[dict, Depends(get_current_user)], page: int = 1,
-                                 page_size: int = 6):
+async def get_all_vacancies_user(page: int = 1, page_size: int = 6):
     try:
 
         skip = (page - 1) * page_size
@@ -32,7 +31,7 @@ async def get_all_vacancies_user(current_user: Annotated[dict, Depends(get_curre
 
 
 @router.get("/resumes/{sailor_id}", response_model=user_model)
-async def get_user_vacancy(user_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_user_vacancy(user_id: PydanticObjectId):
     try:
 
         user_vacancy = await user_model.get(user_id)

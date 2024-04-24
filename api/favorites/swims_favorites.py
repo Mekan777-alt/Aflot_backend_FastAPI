@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from models.db import db
 from starlette import status
 from beanie import PydanticObjectId
-from typing import Annotated
+from typing import Annotated, Optional
 from api.auth.config import get_current_user
 
 router = APIRouter()
 
 
 @router.get('/{sailor_id}/favorite/vacancies')
-async def get_favorite_vacancies(swims_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_favorite_vacancies(swims_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
         pass
