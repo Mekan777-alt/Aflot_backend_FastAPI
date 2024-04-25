@@ -1,7 +1,7 @@
 from beanie import Document, PydanticObjectId
 from pydantic import Field
 from models.db import db
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 from pydantic import EmailStr
 
@@ -28,3 +28,4 @@ class ship(Document):
     width: int
     phone1: str
     phone2: Optional[str] = None
+    responses: Optional[List[PydanticObjectId]] = None
