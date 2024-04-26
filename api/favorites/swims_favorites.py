@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models.db import db
+from beanie import PydanticObjectId
 from starlette import status
 from typing import Annotated, Optional, List
 from api.auth.config import get_current_user
@@ -65,6 +66,7 @@ async def get_favorite_company(current_user: Annotated[dict, Depends(get_current
 
             date_joinde = user.date_joined.strftime("%d.%m.%Y")
             schemas = CompanyFavoritesSchemas(
+                id=company.id,
                 company_name=company.company_name,
                 company_address=company.company_address,
                 date_joined=date_joinde,
@@ -73,6 +75,26 @@ async def get_favorite_company(current_user: Annotated[dict, Depends(get_current
             company_list.append(schemas)
 
         return company_list
+
+    except HTTPException as e:
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.delete('/favorite/company/{company_id}/delete', status_code=status.HTTP_200_OK)
+async def delete_favorite_company(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        user_id = current_user.get("id")
+        user_info = await auth.get(user_id)
+
+        if not user_info:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
+
+        resume = await user_model.get(user_info.resumeID)
+
+        await user_model.update(resume, {"$pull": {"favorites_company": {"id": company_id}}})
+
+        return {"message": f"{company_id} - deleted successfully from favorites"}
 
     except HTTPException as e:
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)

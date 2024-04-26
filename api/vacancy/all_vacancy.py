@@ -123,6 +123,12 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
         if not resume.favorites_company:
             resume.favorites_company = []
 
+        for i in resume.favorites_company:
+
+            if i.id == company_id:
+
+                return HTTPException(detail="Данная компания уже у вас в избранных", status_code=status.HTTP_200_OK)
+
         resume.favorites_company.append(new_favorite_company)
 
         await resume.save()
