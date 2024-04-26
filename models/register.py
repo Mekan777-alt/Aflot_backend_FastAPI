@@ -25,7 +25,7 @@ class History(BaseModel):
 
 class Payment(BaseModel):
     balance: Optional[float] = 0
-    payment_history: List[History] = None
+    payment_history: Optional[List[History]] = None
     autofill: Optional[bool] = None
 
 
