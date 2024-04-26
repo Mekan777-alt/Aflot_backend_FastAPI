@@ -13,6 +13,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     networks:
       - mynetwork
+    logging:
+      driver: "none"
 
   fast_api:
     container_name: aflot
@@ -35,6 +37,8 @@ services:
       - "8001:8001"
     networks:
       - mynetwork
+    logging:
+      driver: "none"
 
 networks:
   mynetwork:
