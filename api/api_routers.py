@@ -11,6 +11,7 @@ from .contacts.routers import contacts_router
 from .sailor_profile.routers import sailor_profile_router
 from .real_history.routers import history_router
 from .main.routers import main_router
+from .settings.routers import settings_router
 
 api_router = APIRouter()
 
@@ -26,3 +27,4 @@ api_router.include_router(contacts_router)
 api_router.include_router(sailor_profile_router)
 api_router.include_router(history_router)
 api_router.include_router(main_router)
+api_router.include_router(settings_router)
