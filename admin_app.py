@@ -121,18 +121,12 @@ class WorkExperience(EmbeddedDocument):
 
 
 class History(EmbeddedDocument):
-    id = IntField()
+    id = ObjectIdField()
     product = StringField()
     datetime = DateTimeField()
     sum = FloatField()
     method_of_payment = StringField()
     check = StringField()
-
-
-class Payment(EmbeddedDocument):
-    balance: FloatField()
-    payment_history = ListField(EmbeddedDocumentField(History))
-    autofill = BooleanField()
 
 
 
@@ -149,7 +143,9 @@ class UserModel(Document):
     positions = ListField(EmbeddedDocumentField(Position))
     worked = ListField(EmbeddedDocumentField(Worked))
     status = StringField()
-    payment_operations = EmbeddedDocumentField(Payment)
+    balance = FloatField()
+    autofill = BooleanField()
+    payment_history = ListField(EmbeddedDocumentField(History))
     favorites_company = ListField(EmbeddedDocumentField(FavoritesCompany))
     favorites_vacancies = ListField(EmbeddedDocumentField(FavoritesVacancies))
     notification_settings = EmbeddedDocumentField(NotificationSettings)

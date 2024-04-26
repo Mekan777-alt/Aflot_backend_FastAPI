@@ -15,18 +15,12 @@ class NotificationSettings(BaseModel):
 
 
 class History(BaseModel):
-    id: Optional[int] = None
+    id: Optional[PydanticObjectId] = None
     product: Optional[str] = None
     datetime: Optional[datetime] = None
     sum: Optional[float] = None
     method_of_payment: Optional[str] = None
     check: Optional[str] = None
-
-
-class Payment(BaseModel):
-    balance: Optional[float] = 0
-    payment_history: Optional[List[History]] = None
-    autofill: Optional[bool] = None
 
 
 class Vacancies(BaseModel):
@@ -103,7 +97,9 @@ class user_model(Document):
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
     status: Optional[str] = None
-    payment_operations: Optional[Payment] = None
+    balance: Optional[float] = 0
+    autofill: Optional[bool] = False
+    payment_history: Optional[List[History]] = None
     favorites_company: Optional[List[FavoritesCompany]] = None
     favorites_vacancies: Optional[List[FavoritesVacancies]] = None
     notification_settings: NotificationSettings
@@ -126,12 +122,6 @@ class user_model(Document):
             tanker_certificate=None,
             occupational_health_and_safety=None,
             medical_commission=None,
-        )
-
-        self.payment_operations = Payment(
-            balance=0,
-            payment_history=None,
-            autofill=False,
         )
 
         self.shipwrights_papers = ShipwrightsPapers(
