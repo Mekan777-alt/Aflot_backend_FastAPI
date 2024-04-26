@@ -131,7 +131,7 @@ class History(EmbeddedDocument):
 
 class Payment(EmbeddedDocument):
     balance: FloatField()
-    payment_history = EmbeddedDocumentField(ListField(History))
+    payment_history = ListField(EmbeddedDocumentField(History))
     autofill = BooleanField()
 
 
