@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from beanie import Document
 from schemas.auth.auth import Optional, Worked, Position
 from models.db import db
@@ -12,6 +12,21 @@ class NotificationSettings(BaseModel):
     send_sms: bool = False
     send_telegram: bool = False
     mailing_notification: bool = False
+
+
+class History(BaseModel):
+    id: Optional[int] = None
+    product: Optional[str] = None
+    datetime: Optional[datetime] = None
+    sum: Optional[float] = None
+    method_of_payment: Optional[str] = None
+    check: Optional[str] = None
+
+
+class Payment(BaseModel):
+    balance: Optional[float] = 0
+    payment_history: List[History] = None
+    autofill: Optional[bool] = None
 
 
 class Vacancies(BaseModel):
@@ -88,6 +103,7 @@ class user_model(Document):
     positions: Optional[List[Position]] = None
     worked: Optional[List[Worked]] = None
     status: Optional[str] = None
+    payment_operations: Optional[Payment] = None
     favorites_company: Optional[List[FavoritesCompany]] = None
     favorites_vacancies: Optional[List[FavoritesVacancies]] = None
     notification_settings: NotificationSettings
@@ -110,6 +126,12 @@ class user_model(Document):
             tanker_certificate=None,
             occupational_health_and_safety=None,
             medical_commission=None,
+        )
+
+        self.payment_operations = Payment(
+            balance=0,
+            payment_history=[History()],
+            autofill=False,
         )
 
         self.shipwrights_papers = ShipwrightsPapers(

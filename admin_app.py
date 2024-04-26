@@ -6,7 +6,7 @@ from starlette.routing import Route
 from starlette_admin.contrib.mongoengine import Admin, ModelView
 from mongoengine import connect, disconnect
 from mongoengine import (Document, EmailField, IntField, StringField, DateTimeField, BooleanField, DateField,
-                         EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField)
+                         EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField, FloatField)
 from mongoengine.fields import ObjectIdField
 from dotenv import load_dotenv
 import os
@@ -15,7 +15,7 @@ import os
 class Auth(Document):
     resumeID = ObjectIdField()
     email = EmailField(unique=True)
-    inn = IntField(unique=True)
+    inn = IntField()
     phone_number = StringField(unique=True)
     hashed_password = StringField()
     role = StringField()
@@ -120,6 +120,22 @@ class WorkExperience(EmbeddedDocument):
     period_of_work_to = DateField()
 
 
+class History(EmbeddedDocument):
+    id = IntField()
+    product = StringField()
+    datetime = DateTimeField()
+    sum = FloatField()
+    method_of_payment = StringField()
+    check = StringField()
+
+
+class Payment(EmbeddedDocument):
+    balance: FloatField()
+    payment_history = EmbeddedDocumentField(ListField(History))
+    autofill = BooleanField()
+
+
+
 class UserModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField()
@@ -133,6 +149,7 @@ class UserModel(Document):
     positions = ListField(EmbeddedDocumentField(Position))
     worked = ListField(EmbeddedDocumentField(Worked))
     status = StringField()
+    payment_operations = EmbeddedDocumentField(Payment)
     favorites_company = ListField(EmbeddedDocumentField(FavoritesCompany))
     favorites_vacancies = ListField(EmbeddedDocumentField(FavoritesVacancies))
     notification_settings = EmbeddedDocumentField(NotificationSettings)
