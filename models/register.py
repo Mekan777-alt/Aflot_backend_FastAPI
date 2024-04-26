@@ -130,7 +130,7 @@ class user_model(Document):
 
         self.payment_operations = Payment(
             balance=0,
-            payment_history=[History()],
+            payment_history=None,
             autofill=False,
         )
 
