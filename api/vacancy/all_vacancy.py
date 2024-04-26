@@ -3,9 +3,9 @@ import math
 from starlette import status
 from beanie import PydanticObjectId
 from models import company_model, auth, user_model
-from models.register import FavoritesVacancies
+from models.register import FavoritesVacancies, FavoritesCompany
 from models import ship as ShipModel
-from typing import Annotated
+from typing import Annotated, List
 from api.auth.config import get_current_user
 
 router = APIRouter()
@@ -105,9 +105,30 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
 
 
 @router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}")
-async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: PydanticObjectId):
+async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: PydanticObjectId,
+                                  current_user: Annotated[dict, Depends(get_current_user)]):
     try:
-        pass
+        user_id = current_user.get('id')
+
+        if not user_id:
+
+            raise HTTPException(detail='User not found', status_code=status.HTTP_404_NOT_FOUND)
+
+        user = await auth.get(user_id)
+
+        resume = await user_model.get(user.resumeID)
+
+        new_favorite_company = FavoritesCompany(id=company_id)
+
+        if not resume.favorites_company:
+            resume.favorites_company = []
+
+        resume.favorites_company.append(new_favorite_company)
+
+        await resume.save()
+
+
+        return {"message": f"{company_id} - added to favorites"}
 
     except HTTPException as e:
 
