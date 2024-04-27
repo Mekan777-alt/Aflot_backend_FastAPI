@@ -29,3 +29,4 @@ class ship(Document):
     phone1: str
     phone2: Optional[str] = None
     responses: Optional[List[PydanticObjectId]] = None
+    job_offers: Optional[List[PydanticObjectId]] = None
