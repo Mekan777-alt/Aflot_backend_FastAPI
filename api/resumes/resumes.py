@@ -144,3 +144,28 @@ async def search_resume(current_user: Annotated[dict, Depends(get_current_user)]
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post('/resumes/{sailor_id}/add-blacklist', status_code=status.HTTP_201_CREATED)
+async def add_blacklist(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        company_id = current_user.get('id')
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(detail="Company not found", status_code=status.HTTP_404_NOT_FOUND)
+
+        company = await company_model.get(company_info.resumeID)
+
+        if not company.black_list_resume:
+            company.black_list_resume = []
+
+        company.black_list_resume.append(sailor_id)
+        await company.save()
+
+        return company
+
+    except HTTPException as e:
+
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
