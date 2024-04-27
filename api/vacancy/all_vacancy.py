@@ -41,7 +41,7 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная вакансия не найдена")
 
         data.append(vacancies)
-        company = await company_model.find_one({'vacancies.id': vacancies_id})
+        company = await company_model.find_one({'vacancies': vacancies_id})
 
         if not company:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия по данной компании не доступна")
@@ -141,11 +141,31 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/all-vacancies/{vacancies_id}/add_blacklist", status_code=status.HTTP_201_CREATED)
-async def add_blacklist(vacancies_id: PydanticObjectId):
+@router.get("/all-vacancies/{vacancies_id}/all-vacancies-company/{company_id}", status_code=status.HTTP_200_OK)
+async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: PydanticObjectId):
     try:
-        pass
+
+        company = await company_model.get(company_id)
+
+        if not company:
+
+            raise HTTPException(detail='Company not found', status_code=status.HTTP_404_NOT_FOUND)
+
+        company_all_vacancy = company.vacancies if company.vacancies else []
+
+        if not company_all_vacancy:
+
+            return company_all_vacancy
+
+        data = []
+        for vacancy in company_all_vacancy:
+
+            job = await ShipModel.get(vacancy)
+
+            data.append(job)
+
+        return data
 
     except HTTPException as e:
-
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+

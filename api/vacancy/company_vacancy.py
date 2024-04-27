@@ -64,6 +64,60 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
+@router.get('/vacancies/{vacancy_id}/response', status_code=status.HTTP_200_OK)
+async def response_vacancy_id(vacancy_id: PydanticObjectId,
+                              current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        company_id = current_user.get("id")
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
+
+        company = await company_model.get(company_info.resumeID)
+
+    except HTTPException as e:
+
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.get('/vacancies/{vacancy_id}/job-offers', status_code=status.HTTP_200_OK)
+async def job_offers_vacancy_id(vacancy_id: PydanticObjectId,
+                                current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        company_id = current_user.get("id")
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
+
+        company = await company_model.get(company_info.resumeID)
+
+    except HTTPException as e:
+
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.get('/vacancies/{vacancy_id}/ready-to-work', status_code=status.HTTP_200_OK)
+async def response_vacancy_id(vacancy_id: PydanticObjectId,
+                              current_user: Annotated[dict, Depends(get_current_user)]):
+    try:
+
+        company_id = current_user.get("id")
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
+
+        company = await company_model.get(company_info.resumeID)
+
+    except HTTPException as e:
+
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
 @router.get('/drafts', status_code=status.HTTP_200_OK)
 async def get_drafts_vacancy(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
