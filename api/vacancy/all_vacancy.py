@@ -7,6 +7,7 @@ from models.register import FavoritesVacancies, FavoritesCompany
 from models import ship as ShipModel
 from typing import Annotated, List
 from api.auth.config import get_current_user
+from starlette.responses import JSONResponse
 
 router = APIRouter()
 
@@ -59,11 +60,34 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post('/all-vacancies/{vacancies_id}/respond', status_code=status.HTTP_201_CREATED)
+@router.post('/all-vacancies/{vacancies_id}/respond')
 async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
-        pass
+        user_id = current_user.get("id")
+
+        user_info = await auth.get(user_id)
+
+        if not user_info:
+
+            raise HTTPException(detail="User not found", status_code=status.HTTP_401_UNAUTHORIZED)
+
+        resume_id = user_info.resumeID
+
+        vacancy_info = await ShipModel.get(vacancies_id)
+
+        if not vacancy_info:
+
+            raise HTTPException(detail="Vacancy not found", status_code=status.HTTP_404_NOT_FOUND)
+
+        if not vacancy_info.responses:
+            vacancy_info.responses = []
+
+        vacancy_info.responses.append(resume_id)
+
+        await vacancy_info.save()
+
+        return JSONResponse(content="Отклик на вакансию отправлен", status_code=status.HTTP_200_OK)
 
     except HTTPException as e:
 
