@@ -112,7 +112,13 @@ async def add_user_to_favorite(sailor_id: PydanticObjectId, current_user: Annota
 
         company = await company_model.get(company_info.resumeID)
 
+        if not company.favorites_resume:
+            company.favorites_resume = []
 
+        company.favorites_resume.append(sailor_id)
+        await company.save()
+
+        return company
 
     except HTTPException as e:
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)

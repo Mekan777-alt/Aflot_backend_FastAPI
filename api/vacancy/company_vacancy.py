@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models.register import Vacancies
 from models import company_model, auth
 from beanie import PydanticObjectId
 from models.jobs import ship as ShipModel
@@ -27,12 +26,10 @@ async def create_vacancies_by_company(jobs_create: Ship,
 
         await new_vacancy.create()
 
-        vacancy = Vacancies(id=new_vacancy.id)
-
         if not company.vacancies:
             company.vacancies = []
 
-        company.vacancies.append(vacancy)
+        company.vacancies.append(new_vacancy.id)
         await company.save()
 
         return new_vacancy

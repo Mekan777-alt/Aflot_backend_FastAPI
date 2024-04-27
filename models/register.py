@@ -23,18 +23,6 @@ class History(BaseModel):
     check: Optional[str] = None
 
 
-class Vacancies(BaseModel):
-    id: PydanticObjectId
-
-
-class BlackList(BaseModel):
-    id: PydanticObjectId
-
-
-class FavoritesSailor(BaseModel):
-    id: PydanticObjectId
-
-
 class FavoritesCompany(BaseModel):
     id: PydanticObjectId
 
@@ -161,7 +149,7 @@ class company_model(Document):
     company_name: str
     company_inn: Indexed(int, unique=True)
     company_address: str
-    favorites_resume: Optional[List[FavoritesSailor]] = None
-    black_list_resume: Optional[List[BlackList]] = None
-    vacancies: Optional[List[Vacancies]] = None
+    favorites_resume: Optional[List[PydanticObjectId]] = None
+    black_list_resume: Optional[List[PydanticObjectId]] = None
+    vacancies: Optional[List[PydanticObjectId]] = None
     notification_settings: NotificationSettings
