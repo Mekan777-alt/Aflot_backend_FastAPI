@@ -165,9 +165,9 @@ class CompanyModel(Document):
     company_name = StringField()
     company_inn = IntField(unique=True)
     company_address = StringField()
-    favorites_resume = ListField(EmbeddedDocumentField(Favorites))
-    black_list_resume = ListField(EmbeddedDocumentField(BlackList))
-    vacancies = ListField(EmbeddedDocumentField(Vacancies))
+    favorites_resume = ListField(EmbeddedDocumentField(ObjectIdField))
+    black_list_resume = ListField(EmbeddedDocumentField(ObjectIdField))
+    vacancies = ListField(EmbeddedDocumentField(ObjectIdField))
     notification_settings = EmbeddedDocumentField(NotificationSettings)
 
 
