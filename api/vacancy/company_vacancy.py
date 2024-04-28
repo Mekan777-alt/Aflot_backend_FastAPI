@@ -5,6 +5,7 @@ from models.jobs import ship as ShipModel
 from starlette import status
 from api.auth.config import get_current_user
 from schemas.vacancies_company.ship import Ship, ShipRead
+from schemas.vacancies_company.vacancies_list import VacanciesResponse, ResponseCount, Vacancies
 from typing import Annotated, Optional
 from schemas.vacancies_company.user_resume import Resume
 from typing import List
@@ -39,7 +40,7 @@ async def create_vacancies_by_company(jobs_create: Ship,
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/vacancies", status_code=status.HTTP_200_OK)
+@router.get("/vacancies", status_code=status.HTTP_200_OK, response_model=List[VacanciesResponse])
 async def get_company_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company_id = current_user.get("id")
@@ -56,7 +57,11 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         for vacancy in vacancies:
             vacancies_data = await ShipModel.get(vacancy)
             if vacancies_data.status == 'активная вакансия':
-                vacancies_info.append(vacancies_data)
+                response = VacanciesResponse(
+                    vacancies=Vacancies(**dict(vacancies_data)),
+                    responseCount=ResponseCount(responseCount=len(vacancies_data.responses)),
+                )
+                vacancies_info.append(response)
             else:
                 pass
 
