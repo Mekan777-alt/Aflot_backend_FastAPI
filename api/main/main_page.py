@@ -22,7 +22,7 @@ async def main_page():
         }
         for doc in document_vacancy:
 
-            document_company = await company_model.find_one({"vacancies.id": doc.id})
+            document_company = await company_model.find_one({"vacancies": doc.id})
 
             data_vacancy = {
                 "company_info": CompanyInfo(**document_company.dict()),
