@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import company_model, auth
+from models import company_model, auth, user_model
 from beanie import PydanticObjectId
 from models.jobs import ship as ShipModel
 from starlette import status
 from api.auth.config import get_current_user
 from schemas.vacancies_company.ship import Ship, ShipRead
 from typing import Annotated, Optional
+from schemas.vacancies_company.user_resume import Resume
+from typing import List
 
 router = APIRouter()
 
@@ -52,7 +54,7 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         vacancies_info = []
 
         for vacancy in vacancies:
-            vacancies_data = await ShipModel.get(vacancy.id)
+            vacancies_data = await ShipModel.get(vacancy)
             if vacancies_data.status == 'активная вакансия':
                 vacancies_info.append(vacancies_data)
             else:
@@ -64,7 +66,7 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get('/vacancies/{vacancy_id}/response', status_code=status.HTTP_200_OK)
+@router.get('/vacancies/{vacancy_id}/response', status_code=status.HTTP_200_OK, response_model=List[Resume])
 async def response_vacancy_id(vacancy_id: PydanticObjectId,
                               current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -75,11 +77,23 @@ async def response_vacancy_id(vacancy_id: PydanticObjectId,
         if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
-        company = await company_model.get(company_info.resumeID)
+        vacancy = await ShipModel.get(vacancy_id)
 
+        if not vacancy:
+            raise HTTPException(detail='Vacancy not found', status_code=status.HTTP_404_NOT_FOUND)
+
+        responses = vacancy.responses
+
+        resume_list = []
+        for response in responses:
+            resume = await user_model.get(response)
+
+            resume_list.append(resume)
+
+        return resume_list
     except HTTPException as e:
 
-        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+        return e
 
 
 @router.get('/vacancies/{vacancy_id}/job-offers', status_code=status.HTTP_200_OK)

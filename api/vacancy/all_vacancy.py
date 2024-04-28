@@ -5,7 +5,7 @@ from beanie import PydanticObjectId
 from models import company_model, auth, user_model
 from models.register import FavoritesVacancies, FavoritesCompany
 from models import ship as ShipModel
-from typing import Annotated, List
+from typing import Annotated
 from api.auth.config import get_current_user
 from starlette.responses import JSONResponse
 
@@ -30,7 +30,7 @@ async def get_all_vacancies(page: int = 1, page_size: int = 4):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/all-vacancies/{vacancies_id}")
+@router.get("/all-vacancies/{vacancies_id}", status_code=status.HTTP_200_OK)
 async def get_vacancies_id(vacancies_id: PydanticObjectId):
     try:
 
@@ -57,7 +57,7 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId):
         return data
 
     except HTTPException as e:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        return e
 
 
 @router.post('/all-vacancies/{vacancies_id}/respond')
@@ -91,7 +91,7 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotate
 
     except HTTPException as e:
 
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        return e
 
 
 @router.post("/all-vacancies/{vacancies_id}/add_favorite")
@@ -125,7 +125,7 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
 
     except HTTPException as e:
 
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        return e
 
 
 @router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}")
@@ -162,7 +162,7 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
 
     except HTTPException as e:
 
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        return e
 
 
 @router.get("/all-vacancies/{vacancies_id}/all-vacancies-company/{company_id}", status_code=status.HTTP_200_OK)
@@ -191,5 +191,5 @@ async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: 
         return data
 
     except HTTPException as e:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        return e
 
