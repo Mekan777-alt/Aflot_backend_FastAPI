@@ -57,7 +57,7 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId):
         return data
 
     except HTTPException as e:
-        return e
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.post('/all-vacancies/{vacancies_id}/respond')
@@ -91,7 +91,7 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotate
 
     except HTTPException as e:
 
-        return e
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.post("/all-vacancies/{vacancies_id}/add_favorite")
@@ -125,7 +125,7 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
 
     except HTTPException as e:
 
-        return e
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}")
@@ -162,7 +162,7 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
 
     except HTTPException as e:
 
-        return e
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
 @router.get("/all-vacancies/{vacancies_id}/all-vacancies-company/{company_id}", status_code=status.HTTP_200_OK)
@@ -191,5 +191,5 @@ async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: 
         return data
 
     except HTTPException as e:
-        return e
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 

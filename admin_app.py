@@ -1,12 +1,12 @@
-import datetime
-
+from mongoengine.signals import post_delete
+from beanie import PydanticObjectId
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse
 from starlette.routing import Route
 from starlette_admin.contrib.mongoengine import Admin, ModelView
 from mongoengine import connect, disconnect
 from mongoengine import (Document, EmailField, IntField, StringField, DateTimeField, BooleanField, DateField,
-                         EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField, FloatField)
+                         EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField, FloatField, FileField)
 from mongoengine.fields import ObjectIdField
 from dotenv import load_dotenv
 import os
@@ -47,6 +47,7 @@ class Ship(Document):
     phone2 = StringField()
     responses = ListField(ObjectIdField())
     job_offers = ListField(ObjectIdField())
+
 
 class Position(EmbeddedDocument):
     position_name = StringField()
@@ -130,7 +131,6 @@ class History(EmbeddedDocument):
     check = StringField()
 
 
-
 class UserModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField()
@@ -193,8 +193,30 @@ class NewsModel(Document):
     title = StringField()
     content = StringField()
     created_at = DateField()
-    photo_path = ImageField()
+    photo = ImageField()
+    photo_path = StringField()
     view_count = IntField()
+
+    def save(self, *args, **kwargs):
+        if self.photo:
+            image_data = self.photo.read()
+
+            if not os.path.exists("images"):
+                os.makedirs("images")
+
+            object_id = PydanticObjectId()
+            file_path = os.path.join("images", f"{object_id}.jpg")
+
+            with open(file_path, "wb") as f:
+                f.write(image_data)
+
+            self.photo_path = file_path
+
+        elif self.photo_path:
+            os.remove(self.photo_path)
+            self.photo_path = None
+
+        super(NewsModel, self).save(*args, **kwargs)
 
 
 class RealHistory(Document):
@@ -234,19 +256,6 @@ load_dotenv()
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-app = Starlette(
-    routes=[
-        Route(
-            "/",
-            lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
-        )
-    ],
-    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME,
-                                password=DB_PASSWORD)],
-    on_shutdown=[lambda: disconnect()],
-)
-
-
 # app = Starlette(
 #     routes=[
 #         Route(
@@ -254,9 +263,22 @@ app = Starlette(
 #             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
 #         )
 #     ],
-#     on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017)],
+#     on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME,
+#                                 password=DB_PASSWORD)],
 #     on_shutdown=[lambda: disconnect()],
 # )
+
+
+app = Starlette(
+    routes=[
+        Route(
+            "/",
+            lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
+        )
+    ],
+    on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017)],
+    on_shutdown=[lambda: disconnect()],
+)
 # Create admin
 admin = Admin(title="Admin: AFLOT ADMIN")
 

@@ -114,6 +114,15 @@ async def job_offers_vacancy_id(vacancy_id: PydanticObjectId,
 
         company = await company_model.get(company_info.resumeID)
 
+        job_offers = company.job_offers
+
+        job_offers_info = []
+
+        for job_offer in job_offers:
+            job_offers_data = await user_model.get(job_offer)
+            job_offers_data.append(job_offer)
+
+        return job_offers_info
     except HTTPException as e:
 
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
