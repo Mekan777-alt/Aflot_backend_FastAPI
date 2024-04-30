@@ -13,6 +13,7 @@ from .real_history.routers import history_router
 from .main.routers import main_router
 from .settings.routers import settings_router
 from .balance_and_history_payment.routers import balance_router
+from .photo_and_logo.routers import download_router
 
 api_router = APIRouter()
 
@@ -30,3 +31,4 @@ api_router.include_router(history_router)
 api_router.include_router(main_router)
 api_router.include_router(settings_router)
 api_router.include_router(balance_router)
+api_router.include_router(download_router)

@@ -78,6 +78,7 @@ class user_model(Document):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
+    photo_path: Optional[str] = None
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
@@ -145,6 +146,7 @@ class company_model(Document):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
+    photo_path: Optional[str] = None
     telegram: Optional[str] = None
     company_name: str
     company_inn: Indexed(int, unique=True)
