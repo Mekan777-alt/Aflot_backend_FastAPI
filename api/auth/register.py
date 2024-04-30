@@ -41,6 +41,9 @@ async def register_user(user_data: UserCreate):
 
         auth = auth_model(
             resumeID=user.id,
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
+            patronymic=user_data.patronymic if user_data.patronymic is not None else None,
             email=user_data.email,
             hashed_password=hashed_password,
             salt=salt,
@@ -88,6 +91,9 @@ async def register_company(company_data: CompanyCreate):
 
         auth = auth_model(
             resumeID=company.id,
+            first_name=company_data.first_name,
+            last_name=company_data.last_name,
+            patronymic=company_data.patronymic if company_data.patronymic is not None else None,
             email=company_data.email,
             hashed_password=hashed_password,
             salt=salt,
