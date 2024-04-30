@@ -29,9 +29,8 @@ async def news_get(page: int = 1, page_size: int = 10):
 
 
 @router.get('/news/{news_id}')
-async def get_news_id(news_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_news_id(news_id: PydanticObjectId):
     try:
-
 
         news_obj = await news_model.get(news_id)
 
