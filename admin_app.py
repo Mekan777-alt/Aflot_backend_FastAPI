@@ -261,19 +261,6 @@ load_dotenv()
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-# app = Starlette(
-#     routes=[
-#         Route(
-#             "/",
-#             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
-#         )
-#     ],
-#     on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME,
-#                                 password=DB_PASSWORD)],
-#     on_shutdown=[lambda: disconnect()],
-# )
-
-
 app = Starlette(
     routes=[
         Route(
@@ -281,9 +268,22 @@ app = Starlette(
             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
         )
     ],
-    on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017)],
+    on_startup=[lambda: connect(db="aflot_backend", host="mongo", port=27017, username=DB_USERNAME,
+                                password=DB_PASSWORD)],
     on_shutdown=[lambda: disconnect()],
 )
+
+#
+# app = Starlette(
+#     routes=[
+#         Route(
+#             "/",
+#             lambda r: HTMLResponse('<a href="/admin/">Click me to get to Admin!</a>'),
+#         )
+#     ],
+#     on_startup=[lambda: connect(db="aflot_backend", host="localhost", port=27017)],
+#     on_shutdown=[lambda: disconnect()],
+# )
 # Create admin
 admin = Admin(title="Admin: AFLOT ADMIN")
 
