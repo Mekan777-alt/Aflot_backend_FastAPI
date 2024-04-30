@@ -16,3 +16,14 @@ class CompanyOldSettings(BaseModel):
     notification_settings: Optional[CompanyNotification]
 
 
+class CompanySchema(BaseModel):
+    email: EmailStr
+    phone_number: str
+    first_name: str
+    last_name: str
+    patronymic: Optional[str] = None
+    photo_path: Optional[str] = None
+    telegram: Optional[str] = None
+    company_name: str
+    company_inn: int
+    company_address: str
