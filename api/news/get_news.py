@@ -33,12 +33,19 @@ async def get_news_id(news_id: PydanticObjectId):
     try:
 
         news_obj = await news_model.get(news_id)
-
         if not news_obj:
 
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='News not found')
 
-        return news_obj
+        prev_news = await news_model.find_one({"_id": {"$lt": news_id}}, sort=[("_id", -1)])
+        next_news = await news_model.find_one({"_id": {"$gt": news_id}}, sort=[("_id", 1)])
+
+        data = {
+            "current_news": news_obj,
+            "prev_news": prev_news,
+            "next_news": next_news
+        }
+        return data
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
