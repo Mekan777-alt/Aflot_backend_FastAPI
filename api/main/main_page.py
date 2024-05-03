@@ -4,6 +4,7 @@ from starlette import status
 from models import ship, user_model, company_model, news_model
 from schemas.main.vacancy import Vacancy, CompanyInfo
 from schemas.main.resume import Resume
+from .config import format_date
 
 
 router = APIRouter()
@@ -47,12 +48,20 @@ async def main_page():
 
         document_news = await news_model.find().sort([("_id", SortDirection.DESCENDING)]).limit(4).to_list()
 
-        news = {
-            "new_news": document_news
+        news_list = {
+            "new_news": [],
+            "interesting": []
         }
 
-        data.append(news)
+        for news in document_news:
 
+            formated_date = await format_date(news.created_at)
+
+            news.created_at = formated_date
+
+            news_list["new_news"].append(news)
+
+        data.append(news_list)
         return data
 
     except HTTPException as e:

@@ -1,9 +1,4 @@
-from datetime import datetime
-
-
-def format_date(date_str: str) -> str:
-    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-
+async def format_date(date_obj) -> str:
     month_names = {
         1: 'января', 2: 'февраля', 3: 'марта', 4: 'апреля',
         5: 'мая', 6: 'июня', 7: 'июля', 8: 'августа',
