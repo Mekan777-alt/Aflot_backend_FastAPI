@@ -47,6 +47,7 @@ async def main_page():
         data.append(resume)
 
         document_news = await news_model.find().sort([("_id", SortDirection.DESCENDING)]).limit(4).to_list()
+        interesting_news = await news_model.find().sort([("view_count", SortDirection.DESCENDING)]).limit(4).to_list()
 
         news_list = {
             "new_news": [],
@@ -60,6 +61,14 @@ async def main_page():
             news.created_at = formated_date
 
             news_list["new_news"].append(news)
+
+        for news in interesting_news:
+
+            formated_date = await format_date(news.created_at)
+
+            news.created_at = formated_date
+
+            news_list["interesting"].append(news)
 
         data.append(news_list)
         return data
