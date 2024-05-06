@@ -57,9 +57,10 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         for vacancy in vacancies:
             vacancies_data = await ShipModel.get(vacancy)
             if vacancies_data.status == 'активная вакансия':
+                response_count = len(vacancies_data.responses) if vacancies_data.responses else 0
                 response = VacanciesResponse(
                     vacancies=Vacancies(**dict(vacancies_data)),
-                    responseCount=ResponseCount(responseCount=len(vacancies_data.responses)),
+                    responseCount=ResponseCount(responseCount=response_count),
                 )
                 vacancies_info.append(response)
             else:
