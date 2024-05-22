@@ -4,6 +4,9 @@ from typing import Annotated
 from models import user_model, company_model, auth
 from api.auth.config import get_current_user
 import shutil
+import boto3
+from api.cloAPI.config import credentials_request, bucket_name, tenant_name
+import subprocess
 
 router = APIRouter()
 
@@ -13,13 +16,27 @@ async def photo_and_logo(current_user: Annotated[dict, Depends(get_current_user)
                          photo: UploadFile = File(...)):
     try:
 
-        photo.filename = photo.filename.lower()
-        path = f"static/{photo.filename}"
+        access_key, secret_key = credentials_request()
 
-        with open(path, 'wb+') as buffer:
-            shutil.copyfileobj(photo.file, buffer)
-
+        client_s3 = boto3.client(
+            's3',
+            endpoint_url="https://storage.clo.ru/s3-user-e5a009-default-bucket",
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+        )
         user_id = current_user.get('id')
+
+        folder_name = f"user_{user_id}/photo/"
+        file_key = f"{folder_name}{photo.filename}"
+
+        client_s3.upload_fileobj(
+            photo.file,
+            str(bucket_name),
+            file_key,
+            ExtraArgs={'ACL': 'public-read'}
+        )
+
+        path = f"https://{bucket_name}.storage.clo.ru/{bucket_name}/{file_key}"
 
         if current_user['role'] == 'Моряк':
 
