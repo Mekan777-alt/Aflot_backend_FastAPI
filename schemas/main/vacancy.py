@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import date
 from beanie import PydanticObjectId
 
@@ -15,4 +16,4 @@ class Vacancy(BaseModel):
 class CompanyInfo(BaseModel):
     id: PydanticObjectId
     company_name: str
-    photo_path: str
+    photo_path: Optional[str] = None

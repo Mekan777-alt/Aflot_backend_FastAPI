@@ -8,4 +8,4 @@ class Resume(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
-    photo_path: str
+    photo_path: Optional[str] = None
