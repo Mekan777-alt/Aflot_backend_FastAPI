@@ -15,3 +15,4 @@ class Vacancy(BaseModel):
 class CompanyInfo(BaseModel):
     id: PydanticObjectId
     company_name: str
+    photo_path: str
