@@ -26,4 +26,4 @@ jobs:
           password: ${{ secrets.REMOTE_SERVER_PASSWORD }}
           script: | 
             cd /root/Aflot_backend_FastAPI 
-            docker-compose up --build -d
+            docker compose up --build -d
