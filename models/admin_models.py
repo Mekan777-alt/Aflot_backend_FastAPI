@@ -202,30 +202,31 @@ class NewsModel(Document):
     view_count = IntField()
 
     def save(self, *args, **kwargs):
+        self.photo.read()
 
         BUCKET_NAME = os.getenv('BUCKET_NAME')
         if self.photo:
-            image_data = self.photo.read()
 
             access_key, secret_key = self.get_s3_credentials_for_news()
 
             client_s3 = boto3.client(
                 's3',
-                endpoint_url="https://storage.clo.ru",
+                endpoint_url="https://storage.clo.ru/s3-user-e5a009-default-bucket",
                 aws_access_key_id=access_key,
                 aws_secret_access_key=secret_key,
             )
 
             object_id = PydanticObjectId()
-            file_key = f"news/{object_id}.jpg"
+            folder_name = f"news_{object_id}/photo/"
+            file_key = f"{folder_name}{object_id}.jpg"
 
             try:
-                client_s3.put_object(
-                    Bucket=BUCKET_NAME,
-                    Body=image_data,
-                    Key=file_key,
-                    ACL='public-read',
-                    ContentType='image/jpeg'
+                self.photo.seek(0)
+                client_s3.upload_fileobj(
+                    self.photo,
+                    str(BUCKET_NAME),
+                    file_key,
+                    ExtraArgs={'ACL': 'public-read'}
                 )
             except (NoCredentialsError, PartialCredentialsError) as e:
 
@@ -234,15 +235,14 @@ class NewsModel(Document):
             self.photo_path = f"https://{BUCKET_NAME}.storage.clo.ru/{BUCKET_NAME}/{file_key}"
 
         elif self.photo_path:
-            pass
             # self.delete_photo_from_s3(self.photo_path)
-            # self.photo_path = None
+            self.photo_path = None
         super(NewsModel, self).save(*args, **kwargs)
 
     def get_user_s3_for_news(self):
 
         PROJECT_ID = os.getenv('PROJECT_ID')
-        TOKEN = os.getenv('TOKEN')
+        TOKEN = os.getenv('TOKEN_S3')
 
         url = f"https://api.clo.ru/v2/projects/{PROJECT_ID}/s3/users"
 
@@ -259,7 +259,7 @@ class NewsModel(Document):
 
     def get_s3_credentials_for_news(self):
         object_id = self.get_user_s3_for_news()
-        TOKEN = os.getenv('TOKEN')
+        TOKEN = os.getenv('TOKEN_S3')
 
         url = f"https://api.clo.ru/v2/s3/users/{object_id}/credentials"
 
