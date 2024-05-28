@@ -4,13 +4,13 @@ services:
     image: mongo:4.4.6
     container_name: mongo_container
     restart: always
-    ports:
-      - "27017:27017"
     env_file:
       - .env
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
     networks:
       - mynetwork
     logging:
@@ -21,12 +21,14 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    volumes:
-      - .:/Aflot_backend_FastAPI
     ports:
       - "8000:8000"
     networks:
       - mynetwork
+    depends_on:
+      - mongo
+    logging:
+      driver: "none"
 
   starlette_admin:
     container_name: starlette_admin
@@ -37,8 +39,13 @@ services:
       - "8001:8001"
     networks:
       - mynetwork
+    depends_on:
+      - mongo
     logging:
       driver: "none"
+
+volumes:
+  mongo_data:
 
 networks:
   mynetwork:
