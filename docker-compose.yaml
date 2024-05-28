@@ -26,8 +26,6 @@ services:
       - mynetwork
     depends_on:
       - mongo
-    logging:
-      driver: "none"
 
   starlette_admin:
     container_name: starlette_admin
