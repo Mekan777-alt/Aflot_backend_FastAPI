@@ -25,5 +25,7 @@ class UserResumeResponse(BaseModel):
 
 
 
+
+
 class PostAJobsRequest(BaseModel):
     id: PydanticObjectId

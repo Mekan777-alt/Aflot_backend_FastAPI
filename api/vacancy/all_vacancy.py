@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 import math
 from starlette import status
 from beanie import PydanticObjectId
@@ -8,12 +8,15 @@ from models import ship as ShipModel
 from typing import Annotated
 from api.auth.config import get_current_user
 from starlette.responses import JSONResponse
+from datetime import date
+from schemas.vacancies_company.all_vacancy import VacanciesResponse, VacanciesCompany
+from schemas.vacancies_company.search_vacancy import SearchVacanciesResponse, Vacancy
 
 router = APIRouter()
 
 
-@router.get("/all-vacancies")
-async def get_all_vacancies(page: int = 1, page_size: int = 4):
+@router.get("/all-vacancies", status_code=status.HTTP_200_OK, response_model=VacanciesResponse)
+async def get_all_vacancies(page: int = 1, page_size: int = 7):
     try:
 
         skip = (page - 1) * page_size
@@ -24,10 +27,56 @@ async def get_all_vacancies(page: int = 1, page_size: int = 4):
 
         vacancies = await ShipModel.find().skip(skip).limit(limit).to_list()
 
-        return vacancies
+        vacancies_companies = []
+        for vacancy in vacancies:
+            vacancies_companies.append(VacanciesCompany(**vacancy.dict()))
+
+        data = VacanciesResponse(
+            current_page=page,
+            total_pages=total_page,
+            vacancies=vacancies_companies,
+        )
+
+        return data
 
     except HTTPException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
+
+@router.get("/all-vacancies/search", status_code=status.HTTP_200_OK, response_model=SearchVacanciesResponse)
+async def search_vacancies(
+        salary: str = Query(None),
+        ship_type: str = Query(None),
+        position: str = Query(None),
+        date_of_departure: date = Query(None),
+        contract_duration: str = Query(None),
+        page: int = 1, page_size: int = 7):
+
+    try:
+        filter_query = {}
+        if salary:
+            filter_query["salary"] = salary
+        if ship_type:
+            filter_query["ship_type"] = ship_type
+        if position:
+            filter_query["position"] = {"$regex": position, "$options": "i"}
+        if date_of_departure:
+            filter_query["date_of_departure"] = date_of_departure
+        if contract_duration:
+            filter_query["contract_duration"] = contract_duration
+
+        total_vacancies = await ShipModel.find(filter_query).count()
+        total_pages = math.ceil(total_vacancies / page_size)
+        vacancies_db = await ShipModel.find(filter_query).skip((page - 1) * page_size).limit(page_size).to_list()
+
+        vacancies_companies = []
+        for vacancy in vacancies_db:
+            vacancies_companies.append(Vacancy(**vacancy.dict()))
+
+        return SearchVacanciesResponse(vacancies=vacancies_companies, total_pages=total_pages, current_page=page)
+
+    except Exception as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/all-vacancies/{vacancies_id}", status_code=status.HTTP_200_OK)

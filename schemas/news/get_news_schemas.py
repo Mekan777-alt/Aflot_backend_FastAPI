@@ -20,7 +20,6 @@ class ImageData(BaseModel):
     photo_path: str = None
 
 
-
 class NewsSchema(BaseModel):
     title: str
     content: str
