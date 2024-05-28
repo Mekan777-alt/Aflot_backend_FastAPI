@@ -1,8 +1,14 @@
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from mongoengine import (Document, EmailField, IntField, StringField, DateTimeField, BooleanField, DateField,
                          EmbeddedDocument, EmbeddedDocumentField, ListField, ImageField, FloatField, FileField)
 from mongoengine.fields import ObjectIdField
 from beanie import PydanticObjectId
 import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Auth(Document):
@@ -196,25 +202,74 @@ class NewsModel(Document):
     view_count = IntField()
 
     def save(self, *args, **kwargs):
+
+        BUCKET_NAME = os.getenv('BUCKET_NAME')
         if self.photo:
             image_data = self.photo.read()
 
-            if not os.path.exists("images"):
-                os.makedirs("images")
+            access_key, secret_key = self.get_s3_credentials_for_news()
+
+            client_s3 = boto3.client(
+                's3',
+                endpoint_url="https://storage.clo.ru",
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+            )
 
             object_id = PydanticObjectId()
-            file_path = os.path.join("images", f"{object_id}.jpg")
+            file_key = f"news/{object_id}.jpg"
 
-            with open(file_path, "wb") as f:
-                f.write(image_data)
+            try:
+                client_s3.put_object(
+                    Bucket=BUCKET_NAME,
+                    Body=image_data,
+                    Key=file_key,
+                    ACL='public-read',
+                    ContentType='image/jpeg'
+                )
+            except (NoCredentialsError, PartialCredentialsError) as e:
 
-            self.photo_path = file_path
+                raise RuntimeError(f"S3 credentials are invalid or not provided: {e}")
+
+            self.photo_path = f"https://{BUCKET_NAME}.storage.clo.ru/{BUCKET_NAME}/{file_key}"
 
         elif self.photo_path:
-            os.remove(self.photo_path)
-            self.photo_path = None
-
+            pass
+            # self.delete_photo_from_s3(self.photo_path)
+            # self.photo_path = None
         super(NewsModel, self).save(*args, **kwargs)
+
+    def get_user_s3_for_news(self):
+
+        PROJECT_ID = os.getenv('PROJECT_ID')
+        TOKEN = os.getenv('TOKEN')
+
+        url = f"https://api.clo.ru/v2/projects/{PROJECT_ID}/s3/users"
+
+        header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {TOKEN}'}
+
+        r = requests.get(url, headers=header)
+
+        if r.status_code != 200:
+            return r.json()
+
+        parse = r.json()
+
+        return parse['result'][0]['id']
+
+    def get_s3_credentials_for_news(self):
+        object_id = self.get_user_s3_for_news()
+        TOKEN = os.getenv('TOKEN')
+
+        url = f"https://api.clo.ru/v2/s3/users/{object_id}/credentials"
+
+        header = {'Content-Type': 'application/json', 'Authorization': f'Bearer {TOKEN}'}
+
+        r = requests.get(url=url, headers=header)
+
+        access_key, secret_key = r.json()['result'][0]['access_key'], r.json()['result'][0]['secret_key']
+
+        return access_key, secret_key
 
 
 class RealHistory(Document):
