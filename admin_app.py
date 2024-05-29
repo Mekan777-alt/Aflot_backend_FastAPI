@@ -46,7 +46,7 @@ class UserView(ModelView):
     pass
 
 
-admin.add_view(UserView(Auth, icon="fa fa-users"))
+admin.add_view(UserView(Auth, icon="fa fa-users", label="Пользователи"))
 admin.add_view(UserView(CompanyModel, icon="fa fa-users", label="Компании"))
 admin.add_view(ModelView(UserModel, icon="fa fa-users", label="Резюме моряков"))
 admin.add_view(ModelView(Ship, icon="fa fa-users", label="Вакансии"))
