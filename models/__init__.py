@@ -9,3 +9,4 @@ from .positions import position
 from .real_history import real_history
 from .swims_tariffs import description_tariffs, swims_tariffs
 from .company_tariffs import company_tariffs
+from .navy import navy

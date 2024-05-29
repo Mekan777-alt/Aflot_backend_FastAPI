@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get('/navy')
-async def get_navy(current_user: Annotated[dict, Depends(get_current_user)], page: int = 1, page_size: int = 4):
+async def get_navy(page: int = 1, page_size: int = 10):
     try:
 
         pass

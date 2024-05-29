@@ -14,7 +14,7 @@ load_dotenv()
 class Auth(Document):
     resumeID = ObjectIdField()
     email = EmailField(unique=True)
-    first_name = StringField()
+    first_name = StringField(verbose_name="Имя")
     last_name = StringField()
     patronymic = StringField()
     inn = IntField()
@@ -30,7 +30,7 @@ class Auth(Document):
 
 
 class Ship(Document):
-    position = StringField()
+    position = StringField(verbose_name="Позиция")
     salary = StringField()
     date_of_departure = DateField()
     contract_duration = StringField()
@@ -302,3 +302,14 @@ class Tariffs(EmbeddedDocument):
 
 class CompanyTariffs(Document):
     description = ListField(EmbeddedDocumentField(Tariffs))
+
+
+class Navy(Document):
+    ship_name = StringField()
+    imo = StringField()
+    ship_type = StringField()
+    year_built = StringField()
+    dwt = StringField()
+    kw = StringField()
+    length = StringField()
+    width = StringField()

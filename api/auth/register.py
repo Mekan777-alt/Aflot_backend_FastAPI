@@ -148,7 +148,7 @@ async def refresh_token_get(refresh_token: str = Depends(oauth2_scheme)):
 
         if not user:
 
-            raise HTTPException(status_code=401, detail="Invalid user or company")
+            raise HTTPException(status_code=401, detail="Invalid user or navy")
 
         token = generate_jwt_token(decoded_data)
 

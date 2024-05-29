@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from .auth.routers import auth_router
 from .news.routers import news_router
 from .resumes.routers import resumes_router
-from .company.routers import company_router
+from .navy.routers import company_router
 from .vacancy.routers import vacancy_company_router
 from .company_profile.routers import profile_router
 from .tariffs.routers import tariffs_router
