@@ -96,6 +96,7 @@ class user_model(Document):
     shipwrights_papers: Optional[ShipwrightsPapers] = None
     additional_documents: Optional[AdditionalDocuments] = None
     working_experience: Optional[WorkExperience] = None
+    responses: List[PydanticObjectId] = None
 
     async def create_default(self):
         self.main_documents = MainDocumentsUsers(
