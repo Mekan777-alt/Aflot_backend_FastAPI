@@ -51,7 +51,6 @@ async def search_vacancies(
         date_of_departure: date = Query(None),
         contract_duration: str = Query(None),
         page: int = 1, page_size: int = 7):
-
     try:
         filter_query = {}
         if salary:
@@ -118,7 +117,6 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotate
         user_info = await auth.get(user_id)
 
         if not user_info:
-
             raise HTTPException(detail="User not found", status_code=status.HTTP_401_UNAUTHORIZED)
 
         resume_id = user_info.resumeID
@@ -126,7 +124,6 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotate
         vacancy_info = await ShipModel.get(vacancies_id)
 
         if not vacancy_info:
-
             raise HTTPException(detail="Vacancy not found", status_code=status.HTTP_404_NOT_FOUND)
 
         if not vacancy_info.responses:
@@ -151,7 +148,6 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
         user_id = current_user.get('id')
 
         if not user_id:
-
             raise HTTPException(detail='User not found', status_code=status.HTTP_404_NOT_FOUND)
 
         resume_id = await auth.get(user_id)
@@ -184,7 +180,6 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
         user_id = current_user.get('id')
 
         if not user_id:
-
             raise HTTPException(detail='User not found', status_code=status.HTTP_404_NOT_FOUND)
 
         user = await auth.get(user_id)
@@ -199,13 +194,11 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
         for i in resume.favorites_company:
 
             if i.id == company_id:
-
                 return HTTPException(detail="Данная компания уже у вас в избранных", status_code=status.HTTP_200_OK)
 
         resume.favorites_company.append(new_favorite_company)
 
         await resume.save()
-
 
         return {"message": f"{company_id} - added to favorites"}
 
@@ -221,18 +214,15 @@ async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: 
         company = await company_model.get(company_id)
 
         if not company:
-
             raise HTTPException(detail='Company not found', status_code=status.HTTP_404_NOT_FOUND)
 
         company_all_vacancy = company.vacancies if company.vacancies else []
 
         if not company_all_vacancy:
-
             return company_all_vacancy
 
         data = []
         for vacancy in company_all_vacancy:
-
             job = await ShipModel.get(vacancy)
 
             data.append(job)
@@ -241,4 +231,3 @@ async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: 
 
     except HTTPException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
-

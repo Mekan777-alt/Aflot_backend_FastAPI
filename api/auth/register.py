@@ -21,15 +21,15 @@ async def register_user(user_data: UserCreate):
 
         if await auth_model.find_one({"email": user_data.email}):
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="Email already exists")
 
         if await auth_model.find_one({"phone_number": user_data.phone_number}):
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="Phone number already exists")
 
         if user_data.password != user_data.confirm_password:
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The passwords don't match")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="The passwords don't match")
 
         salt = generate_salt()
         hashed_password = hash_password(user_data.password, salt)
@@ -68,19 +68,19 @@ async def register_company(company_data: CompanyCreate):
 
         if await auth_model.find_one({"email": company_data.email}):
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="Email already exists")
 
         if await auth_model.find_one({"phone_number": company_data.phone_number}):
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already exists")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="Phone number already exists")
 
         if await auth_model.find_one({"company_inn": company_data.company_inn}):
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="INN already exists")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="INN already exists")
 
         if company_data.password != company_data.confirm_password:
 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The passwords don't match")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="The passwords don't match")
 
         salt = generate_salt()
         hashed_password = hash_password(company_data.password, salt)

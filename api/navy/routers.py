@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .company_info import router as company_info_router
+from .navy import router as company_info_router
 
 company_router = APIRouter(
     prefix="/ap1/v1",

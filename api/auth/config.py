@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from passlib.hash import pbkdf2_sha256
+from typing import Optional
 from bson import ObjectId
 
 load_dotenv()
@@ -16,7 +17,7 @@ load_dotenv()
 SECRET_KEY = secrets.token_hex(64)
 ALGORITHM = 'HS256'
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token", auto_error=False)
 EXPIRATION_TIME = timedelta(minutes=30)
 REFRESH_TOKEN_LIFETIME = timedelta(hours=24)
 
@@ -72,15 +73,18 @@ def convert_objectid_to_str(data, schema=None):
         return data
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    service = AuthServices()
+async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
+    if token is None:
+        return None
 
+    service = AuthServices()
     decoded_data = verify_jwt_token(token)
 
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Invalid token")
 
     user = await service.find_user(decoded_data['sub'])
-
     if user:
         return user
+    else:
+        raise HTTPException(status_code=400, detail="User not found")

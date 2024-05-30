@@ -12,6 +12,7 @@ class UserResume(BaseModel):
     first_name: str
     last_name: str
     patronymic: Optional[str] = None
+    photo_path: Optional[str] = None
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
@@ -20,6 +21,7 @@ class UserResume(BaseModel):
 
 
 class UserResumeResponse(BaseModel):
+    current_page: int
     total_page: int
     vacancies: List[UserResume]
 

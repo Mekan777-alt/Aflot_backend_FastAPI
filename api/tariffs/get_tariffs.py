@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
+from typing import Optional
+from api.auth.config import get_current_user
 from starlette import status
 from typing import List
 from models import swims_tariffs, description_tariffs, company_tariffs
@@ -7,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/get_tariffs/company", status_code=status.HTTP_200_OK, response_model=List[company_tariffs])
-async def get_tariffs_company():
+async def get_tariffs_company(current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
         tariffs = await company_tariffs.find().to_list()
@@ -29,7 +31,6 @@ async def get_tariffs_swims():
         data = []
 
         tariffs = await swims_tariffs.find().to_list()
-
 
         if not tariffs:
             raise HTTPException(detail="No tariffs found", status_code=status.HTTP_404_NOT_FOUND)

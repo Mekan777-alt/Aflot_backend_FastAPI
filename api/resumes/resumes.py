@@ -1,11 +1,12 @@
 import math
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import List, Annotated
+from typing import Annotated
+from datetime import date
 from api.auth.config import get_current_user
 from models import user_model, auth, company_model, ship
 from starlette import status
 from beanie import PydanticObjectId
-from schemas.resumes.user_resume import UserResumeResponse, PostAJobsRequest
+from schemas.resumes.user_resume import UserResumeResponse, PostAJobsRequest, UserResume
 
 router = APIRouter()
 
@@ -20,9 +21,57 @@ async def get_all_vacancies_user(page: int = 1, page_size: int = 6):
         total_count = await user_model.find().count()
         total_pages = math.ceil(total_count / page_size)
 
-        vacancies = await user_model.find().skip(skip).limit(limit).to_list()
+        resumes = await user_model.find().skip(skip).limit(limit).to_list()
 
-        return {"total_page": total_pages, "vacancies": vacancies}
+        resume_list = []
+        for vacancy in resumes:
+            resume_list.append(UserResume(**vacancy.dict()))
+
+        data = UserResumeResponse(
+            current_page=page,
+            vacancies=resume_list,
+            total_page=total_pages
+        )
+
+        return data
+
+    except HTTPException as e:
+
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post("/resumes/search")
+async def search_resumes(
+        salary: str = Query(None),
+        ship_type: str = Query(None),
+        position: str = Query(None),
+        date_of_departure: date = Query(None),
+        contract_duration: str = Query(None),
+        page: int = 1, page_size: int = 7):
+
+    try:
+
+        filter_query = {}
+        if salary:
+            filter_query["salary"] = salary
+        if ship_type:
+            filter_query["ship_type"] = ship_type
+        if position:
+            filter_query["position"] = {"$regex": position, "$options": "i"}
+        if date_of_departure:
+            filter_query["date_of_departure"] = date_of_departure
+        if contract_duration:
+            filter_query["contract_duration"] = contract_duration
+
+        total_resume = await user_model.find(filter_query).count()
+        total_pages = math.ceil(total_resume / page_size)
+        resumes_db = await user_model.find(filter_query).skip((page - 1) * page_size).limit(page_size).to_list()
+
+        resumes_list = []
+        for resume in resumes_db:
+            resumes_list.append(UserResume(**resume.dict()))
+
+        return UserResumeResponse(current_page=page, vacancies=resumes_list, total_page=total_pages)
 
     except HTTPException as e:
 
