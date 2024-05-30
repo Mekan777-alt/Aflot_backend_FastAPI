@@ -27,4 +27,6 @@ jobs:
           script: | 
             cd /root/Aflot_backend_FastAPI
             git pull
+            docker pull huecker.io/library/python:3.10-slim-buster
+            docker pull huecker.io/library/mongo:4.4.6
             docker compose up --build -d
