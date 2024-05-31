@@ -11,7 +11,7 @@ import subprocess
 router = APIRouter()
 
 
-@router.post("/load-photo")
+@router.post("/load-photo", summary="Загрузка фото и логотипа")
 async def photo_and_logo(current_user: Annotated[dict, Depends(get_current_user)],
                          photo: UploadFile = File(...)):
     try:

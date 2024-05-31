@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from starlette import status
 from models import real_history
 from typing import List
-from api.auth.config import get_current_user
-from typing import Annotated
+
 
 router = APIRouter(
     prefix="/api/v1",
@@ -11,7 +10,8 @@ router = APIRouter(
 )
 
 
-@router.get("/real-history", status_code=status.HTTP_200_OK, response_model=List[real_history])
+@router.get("/real-history", status_code=status.HTTP_200_OK, response_model=List[real_history],
+            summary="Страница РЕАЛЬНЫЕ ИСТОРИИ")
 async def get_history():
     try:
 

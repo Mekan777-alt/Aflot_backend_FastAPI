@@ -10,7 +10,7 @@ from .config import format_date
 router = APIRouter()
 
 
-@router.get("/main", status_code=status.HTTP_200_OK)
+@router.get("/main", status_code=status.HTTP_200_OK, summary="Главная страница")
 async def main_page():
     try:
 

@@ -9,7 +9,8 @@ from api.auth.config import get_current_user
 router = APIRouter()
 
 
-@router.get("/resume", status_code=status.HTTP_200_OK, response_model=ProfileUserSchemas)
+@router.get("/resume", status_code=status.HTTP_200_OK, response_model=ProfileUserSchemas,
+            summary="Резюме моряка")
 async def get_resume(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -32,7 +33,7 @@ async def get_resume(current_user: Annotated[dict, Depends(get_current_user)]):
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.put('/resume', status_code=status.HTTP_201_CREATED)
+@router.put('/resume', status_code=status.HTTP_201_CREATED, summary="Изменить резюме моряка")
 async def put_resume_sailor(current_user: Annotated[dict, Depends(get_current_user)],
                             request: ProfileUserSchemas):
 

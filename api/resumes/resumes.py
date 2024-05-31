@@ -1,17 +1,18 @@
 import math
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import Annotated
+from typing import Annotated, List
 from datetime import date
 from api.auth.config import get_current_user
 from models import user_model, auth, company_model, ship
 from starlette import status
 from beanie import PydanticObjectId
 from schemas.resumes.user_resume import UserResumeResponse, PostAJobsRequest, UserResume
+from schemas.vacancies_company.vacancies_list import Vacancies
 
 router = APIRouter()
 
 
-@router.get("/resumes", response_model=UserResumeResponse)
+@router.get("/resumes", response_model=UserResumeResponse, summary="Возвращает все резюме моряков")
 async def get_all_vacancies_user(page: int = 1, page_size: int = 6):
     try:
 
@@ -40,7 +41,7 @@ async def get_all_vacancies_user(page: int = 1, page_size: int = 6):
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/search")
+@router.post("/resumes/search", summary="Поиск резюме")
 async def search_resumes(
         salary: str = Query(None),
         ship_type: str = Query(None),
@@ -78,7 +79,7 @@ async def search_resumes(
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/resumes/{sailor_id}", response_model=user_model)
+@router.get("/resumes/{sailor_id}", response_model=user_model, summary="Возвращает резюме по ID")
 async def get_user_vacancy(sailor_id: PydanticObjectId):
     try:
 
@@ -94,9 +95,13 @@ async def get_user_vacancy(sailor_id: PydanticObjectId):
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/resumes/{sailor_id}/post-a-job", status_code=status.HTTP_200_OK)
+@router.get("/resumes/{sailor_id}/post-a-job", status_code=status.HTTP_200_OK, response_model=List[Vacancies],
+            summary="Предлажение вакансии от компании. Возвращает массив вакансий от компании")
 async def post_a_job_get(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
+
+        if current_user is None or current_user['role'] == "Моряк":
+            raise HTTPException(detail="Для начало авторизуйтесь как компания", status_code=status.HTTP_204_NO_CONTENT)
 
         company_id = current_user.get('id')
         company_info = await auth.get(company_id)
@@ -111,7 +116,7 @@ async def post_a_job_get(sailor_id: PydanticObjectId, current_user: Annotated[di
         response_list = []
 
         for vacancy in vacancy_list:
-            jobs = await ship.get(vacancy.id)
+            jobs = await ship.get(vacancy)
 
             response_list.append(jobs)
 
@@ -122,10 +127,14 @@ async def post_a_job_get(sailor_id: PydanticObjectId, current_user: Annotated[di
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/{sailor_id}/post-a-job")
+@router.post("/resumes/{sailor_id}/post-a-job", summary="Отправляет вакансию для моряка",
+             status_code=status.HTTP_200_OK)
 async def post_a_job_post(sailor_id: PydanticObjectId, request: PostAJobsRequest,
                           current_user: Annotated[dict, Depends(get_current_user)]):
     try:
+
+        if current_user is None or current_user['role'] == "Моряк":
+            raise HTTPException(detail="Для начало авторизуйтесь как компания", status_code=status.HTTP_404_NOT_FOUND)
 
         company_id = current_user.get('id')
         company_info = await auth.get(company_id)
@@ -133,23 +142,24 @@ async def post_a_job_post(sailor_id: PydanticObjectId, request: PostAJobsRequest
         if not company_info:
             raise HTTPException(detail="Company not found", status_code=status.HTTP_404_NOT_FOUND)
 
-        jobs = await ship.get(request.id)
+        offer = await user_model.get(sailor_id)
 
-        if not jobs.job_offers:
-            jobs.job_offers = []
+        if not offer.offers:
+            offer.offers = []
 
-        jobs.job_offers.append(request.id)
+        offer.offers.append(request.id)
 
-        await jobs.save()
+        await offer.save()
 
-        return jobs
+        return "Вакансия успешно отправлена"
 
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/{sailor_id}/add_favorite", status_code=status.HTTP_201_CREATED)
+@router.post("/resumes/{sailor_id}/add_favorite", status_code=status.HTTP_201_CREATED,
+             summary="Добавить моряка в избранные")
 async def add_user_to_favorite(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -173,29 +183,8 @@ async def add_user_to_favorite(sailor_id: PydanticObjectId, current_user: Annota
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/search")
-async def search_resume(current_user: Annotated[dict, Depends(get_current_user)],
-                        title: str = Query(None), salary: int = Query(None)):
-    try:
-
-        query = {}
-
-        if title:
-            query["title"] = {"$regex": title, "$options": "i"}
-
-        if salary:
-            query["salary"] = {"$gte": salary}
-
-        resume = user_model.find(query).to_list()
-
-        return resume
-
-    except HTTPException as e:
-
-        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
-
-
-@router.post('/resumes/{sailor_id}/add-blacklist', status_code=status.HTTP_201_CREATED)
+@router.post('/resumes/{sailor_id}/add-blacklist', status_code=status.HTTP_201_CREATED,
+             summary="Добавить моряза в черный списко")
 async def add_blacklist(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 

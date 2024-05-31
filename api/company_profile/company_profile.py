@@ -11,7 +11,8 @@ from schemas.profile.profile_company import CompanySchema
 router = APIRouter()
 
 
-@router.get("/profile", status_code=status.HTTP_200_OK, response_model=CompanySchema)
+@router.get("/profile", status_code=status.HTTP_200_OK, response_model=CompanySchema,
+            summary="Возвращает профиль компании")
 async def get_company_profile(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -31,7 +32,8 @@ async def get_company_profile(current_user: Annotated[dict, Depends(get_current_
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/profile/old_settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings)
+@router.get("/profile/old_settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
+            summary="Возвращает ДОП настройки профиля компании")
 async def get_company_old_settings(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -51,7 +53,8 @@ async def get_company_old_settings(current_user: Annotated[dict, Depends(get_cur
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.put("/profile/old_settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings)
+@router.put("/profile/old_settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
+            summary="Изменение ДОП настроек профиля компании")
 async def save_company_profile(request: CompanyOldSettings, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company_id = current_user.get('id')

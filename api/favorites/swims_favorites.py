@@ -10,7 +10,7 @@ from schemas.favorites_swims.company import CompanyFavoritesSchemas
 router = APIRouter()
 
 
-@router.get('/favorite/vacancies')
+@router.get('/favorite/vacancies', summary="Возвращает избранные вакансии")
 async def get_favorite_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -36,7 +36,8 @@ async def get_favorite_vacancies(current_user: Annotated[dict, Depends(get_curre
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get('/favorite/company', response_model=List[CompanyFavoritesSchemas], status_code=status.HTTP_200_OK)
+@router.get('/favorite/company', response_model=List[CompanyFavoritesSchemas], status_code=status.HTTP_200_OK,
+            summary="Возвращает избранные компании")
 async def get_favorite_company(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -80,7 +81,8 @@ async def get_favorite_company(current_user: Annotated[dict, Depends(get_current
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.delete('/favorite/company/{company_id}/delete', status_code=status.HTTP_200_OK)
+@router.delete('/favorite/company/{company_id}/delete', status_code=status.HTTP_200_OK,
+               summary="Удаляет компанию из избранных")
 async def delete_favorite_company(company_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 

@@ -97,6 +97,7 @@ class user_model(Document):
     additional_documents: Optional[AdditionalDocuments] = None
     working_experience: Optional[WorkExperience] = None
     responses: List[PydanticObjectId] = None
+    offers: List[PydanticObjectId] = None
 
     async def create_default(self):
         self.main_documents = MainDocumentsUsers(

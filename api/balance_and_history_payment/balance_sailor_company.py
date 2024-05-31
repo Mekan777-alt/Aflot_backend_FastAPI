@@ -8,7 +8,8 @@ from schemas.balance.payment_details import PaymentDetails, PaymentHistory
 router = APIRouter()
 
 
-@router.get('/balance', response_model=PaymentDetails, status_code=status.HTTP_200_OK)
+@router.get('/balance', response_model=PaymentDetails, status_code=status.HTTP_200_OK,
+            summary="Возвращает баланс пользователя и компании")
 async def balance_sailor_company(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -36,7 +37,8 @@ async def balance_sailor_company(current_user: Annotated[dict, Depends(get_curre
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get('/balance/history', response_model=List[PaymentHistory], status_code=status.HTTP_200_OK)
+@router.get('/balance/history', response_model=List[PaymentHistory], status_code=status.HTTP_200_OK,
+            summary="Возваращает историю пополнение пользователя и компании")
 async def history_payment(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 

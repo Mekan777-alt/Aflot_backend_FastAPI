@@ -15,7 +15,8 @@ from beanie import PydanticObjectId
 router = APIRouter()
 
 
-@router.post("/register/user", response_model=user_model, status_code=status.HTTP_201_CREATED)
+@router.post("/register/user", response_model=user_model, status_code=status.HTTP_201_CREATED,
+             summary="Регистрация моряка")
 async def register_user(user_data: UserCreate):
     try:
 
@@ -62,7 +63,8 @@ async def register_user(user_data: UserCreate):
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/register/company", response_model=company_model, status_code=status.HTTP_201_CREATED)
+@router.post("/register/company", response_model=company_model, status_code=status.HTTP_201_CREATED,
+             summary="Регистрация компании")
 async def register_company(company_data: CompanyCreate):
     try:
 
@@ -114,7 +116,8 @@ async def register_company(company_data: CompanyCreate):
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=Token,
+             summary="Токен авторизации")
 async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         service = AuthServices()
@@ -134,7 +137,8 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/refresh_token", response_model=Token)
+@router.post("/refresh_token", response_model=Token,
+             summary="Рефреш токен")
 async def refresh_token_get(refresh_token: str = Depends(oauth2_scheme)):
     try:
         decoded_data = verify_jwt_token(refresh_token)

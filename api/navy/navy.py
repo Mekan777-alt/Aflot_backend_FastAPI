@@ -6,7 +6,7 @@ from typing import Annotated
 router = APIRouter()
 
 
-@router.get('/navy')
+@router.get('/navy', summary="Морской флот")
 async def get_navy(page: int = 1, page_size: int = 10):
     try:
 

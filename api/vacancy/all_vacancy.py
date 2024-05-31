@@ -5,7 +5,7 @@ from beanie import PydanticObjectId
 from models import company_model, auth, user_model
 from models.register import FavoritesVacancies, FavoritesCompany
 from models import ship as ShipModel
-from typing import Annotated
+from typing import Optional
 from api.auth.config import get_current_user
 from starlette.responses import JSONResponse
 from datetime import date
@@ -15,7 +15,8 @@ from schemas.vacancies_company.search_vacancy import SearchVacanciesResponse, Va
 router = APIRouter()
 
 
-@router.get("/all-vacancies", status_code=status.HTTP_200_OK, response_model=VacanciesResponse)
+@router.get("/all-vacancies", status_code=status.HTTP_200_OK, response_model=VacanciesResponse,
+            summary="Все вакансии компаний")
 async def get_all_vacancies(page: int = 1, page_size: int = 7):
     try:
 
@@ -43,7 +44,8 @@ async def get_all_vacancies(page: int = 1, page_size: int = 7):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/all-vacancies/search", status_code=status.HTTP_200_OK, response_model=SearchVacanciesResponse)
+@router.get("/all-vacancies/search", status_code=status.HTTP_200_OK, response_model=SearchVacanciesResponse,
+            summary="Поиск вакансий компаний")
 async def search_vacancies(
         salary: str = Query(None),
         ship_type: str = Query(None),
@@ -78,7 +80,7 @@ async def search_vacancies(
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/all-vacancies/{vacancies_id}", status_code=status.HTTP_200_OK)
+@router.get("/all-vacancies/{vacancies_id}", status_code=status.HTTP_200_OK, summary="Подробнее о вакансии")
 async def get_vacancies_id(vacancies_id: PydanticObjectId):
     try:
 
@@ -108,9 +110,12 @@ async def get_vacancies_id(vacancies_id: PydanticObjectId):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post('/all-vacancies/{vacancies_id}/respond')
-async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
+@router.post('/all-vacancies/{vacancies_id}/respond', summary="Отправить отклик на вакансию")
+async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] == 'Компания':
+            return HTTPException(detail="Авторизуйтесь", status_code=status.HTTP_200_OK)
 
         user_id = current_user.get("id")
 
@@ -140,10 +145,13 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Annotate
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/all-vacancies/{vacancies_id}/add_favorite")
+@router.post("/all-vacancies/{vacancies_id}/add_favorite", summary="Добавить вакакнсию в Избранные")
 async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
-                                  current_user: Annotated[dict, Depends(get_current_user)]):
+                                  current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] == 'Компания':
+            return HTTPException(detail="Авторизуйтесь", status_code=status.HTTP_200_OK)
 
         user_id = current_user.get('id')
 
@@ -173,10 +181,14 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}")
+@router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}", summary="Добавить компанию в Избранные")
 async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: PydanticObjectId,
-                                  current_user: Annotated[dict, Depends(get_current_user)]):
+                                  current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] == 'Компания':
+            return HTTPException(detail="Авторизуйтесь", status_code=status.HTTP_200_OK)
+
         user_id = current_user.get('id')
 
         if not user_id:
@@ -207,7 +219,8 @@ async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: Py
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/all-vacancies/{vacancies_id}/all-vacancies-company/{company_id}", status_code=status.HTTP_200_OK)
+@router.get("/all-vacancies/{vacancies_id}/all-vacancies-company/{company_id}", status_code=status.HTTP_200_OK,
+            summary="Просмотреть все вакансии данной компании")
 async def get_all_vacancies_company(vacancies_id: PydanticObjectId, company_id: PydanticObjectId):
     try:
 

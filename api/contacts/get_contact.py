@@ -8,7 +8,8 @@ from typing import Annotated
 router = APIRouter()
 
 
-@router.get('/contacts', status_code=status.HTTP_200_OK, response_model=contact)
+@router.get('/contacts', status_code=status.HTTP_200_OK, response_model=contact,
+            summary="Возвращает контакты")
 async def get_contact_service():
     try:
 
@@ -23,7 +24,8 @@ async def get_contact_service():
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post('/feedback', status_code=status.HTTP_201_CREATED, response_model=feedback)
+@router.post('/feedback', status_code=status.HTTP_201_CREATED, response_model=feedback,
+             summary="Написать Feedback")
 async def send_feedback(request: ContactSchema):
     try:
 
