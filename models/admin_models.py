@@ -51,14 +51,6 @@ class Ship(Document):
     job_offers = ListField(ObjectIdField())
 
 
-class Position(EmbeddedDocument):
-    position_name = StringField()
-
-
-class Worked(EmbeddedDocument):
-    worked = StringField()
-
-
 class Vacancies(EmbeddedDocument):
     id = ObjectIdField()
 
@@ -144,8 +136,8 @@ class UserModel(Document):
     region = StringField()
     city = StringField()
     telegram = StringField()
-    positions = ListField(EmbeddedDocumentField(Position))
-    worked = ListField(EmbeddedDocumentField(Worked))
+    positions = ListField(StringField())
+    worked = ListField(StringField())
     status = StringField()
     balance = FloatField()
     autofill = BooleanField()
