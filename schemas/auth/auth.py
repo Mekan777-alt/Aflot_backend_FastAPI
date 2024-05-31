@@ -2,19 +2,12 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 
+
 class NotificationSettings(BaseModel):
     send_email: bool = False
     send_sms: bool = False
     send_telegram: bool = False
     mailing_notification: bool = False
-
-
-class Position(BaseModel):
-    position_name: str
-
-
-class Worked(BaseModel):
-    worked: str
 
 
 class UserCreate(BaseModel):
@@ -29,10 +22,9 @@ class UserCreate(BaseModel):
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
-    positions: Optional[List[Position]] = None
-    worked: Optional[List[Worked]] = None
+    positions: Optional[List[str]] = None
+    worked: Optional[List[str]] = None
     notification_settings: NotificationSettings
-
 
 
 class UserAuthenticate(OAuth2PasswordRequestForm):

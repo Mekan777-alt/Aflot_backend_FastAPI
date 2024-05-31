@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr
 from beanie import PydanticObjectId
 from typing import Optional, List
-from models.register import Position, Worked
-
 
 
 class Resume(BaseModel):
@@ -16,6 +14,6 @@ class Resume(BaseModel):
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
-    positions: Optional[List[Position]] = None
-    worked: Optional[List[Worked]] = None
+    positions: Optional[List[str]] = None
+    worked: Optional[List[str]] = None
     status: Optional[str] = None

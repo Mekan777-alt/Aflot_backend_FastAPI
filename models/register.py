@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from beanie import Document
-from schemas.auth.auth import Optional, Worked, Position
+from schemas.auth.auth import Optional
 from models.db import db
 from pydantic import BaseModel, EmailStr, Field
 from typing import List
@@ -83,8 +83,8 @@ class user_model(Document):
     region: Optional[str] = None
     city: Optional[str] = None
     telegram: Optional[str] = None
-    positions: Optional[List[Position]] = None
-    worked: Optional[List[Worked]] = None
+    positions: Optional[List[str]] = None
+    worked: Optional[List[str]] = None
     status: Optional[str] = None
     balance: Optional[float] = 0
     autofill: Optional[bool] = False
