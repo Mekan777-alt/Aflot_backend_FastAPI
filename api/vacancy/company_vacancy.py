@@ -13,7 +13,8 @@ from typing import List
 router = APIRouter()
 
 
-@router.post("/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
+@router.post("/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
+             summary="Создать вакансию")
 async def create_vacancies_by_company(jobs_create: Ship,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -40,7 +41,8 @@ async def create_vacancies_by_company(jobs_create: Ship,
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/vacancies", status_code=status.HTTP_200_OK, response_model=List[VacanciesResponse])
+@router.get("/vacancies", status_code=status.HTTP_200_OK, response_model=List[VacanciesResponse],
+            summary="Просмотреть вакансии для компании")
 async def get_company_vacancies(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         company_id = current_user.get("id")
@@ -72,7 +74,8 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get('/vacancies/{vacancy_id}/response', status_code=status.HTTP_200_OK, response_model=List[Resume])
+@router.get('/vacancies/{vacancy_id}/response', status_code=status.HTTP_200_OK, response_model=List[Resume],
+            summary="Просмотреть отклики на данную вакансию")
 async def response_vacancy_id(vacancy_id: PydanticObjectId,
                               current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -102,7 +105,8 @@ async def response_vacancy_id(vacancy_id: PydanticObjectId,
         return e
 
 
-@router.get('/vacancies/{vacancy_id}/job-offers', status_code=status.HTTP_200_OK)
+@router.get('/vacancies/{vacancy_id}/job-offers', status_code=status.HTTP_200_OK,
+            summary="Просмотреть отправленные предложения по данной вакансии")
 async def job_offers_vacancy_id(vacancy_id: PydanticObjectId,
                                 current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -129,7 +133,8 @@ async def job_offers_vacancy_id(vacancy_id: PydanticObjectId,
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get('/vacancies/{vacancy_id}/ready-to-work', status_code=status.HTTP_200_OK)
+@router.get('/vacancies/{vacancy_id}/ready-to-work', status_code=status.HTTP_200_OK,
+            summary="Готовые к работе по данной вакансии")
 async def response_vacancy_id(vacancy_id: PydanticObjectId,
                               current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -147,7 +152,7 @@ async def response_vacancy_id(vacancy_id: PydanticObjectId,
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get('/drafts', status_code=status.HTTP_200_OK)
+@router.get('/drafts', status_code=status.HTTP_200_OK, summary="Черновики")
 async def get_drafts_vacancy(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -159,7 +164,7 @@ async def get_drafts_vacancy(current_user: Annotated[dict, Depends(get_current_u
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get('/irrelevant-vacancies', status_code=status.HTTP_200_OK)
+@router.get('/irrelevant-vacancies', status_code=status.HTTP_200_OK, summary="Неактуальные вакансии")
 async def get_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
@@ -186,7 +191,8 @@ async def get_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_curre
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.put('/irrelevant-vacancies/{vacancy_id}/active', status_code=status.HTTP_201_CREATED)
+@router.put('/irrelevant-vacancies/{vacancy_id}/active', status_code=status.HTTP_201_CREATED,
+            summary="Сделать актуальной вакансию")
 async def active_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_current_user)],
                                     vacancy_id: PydanticObjectId):
     try:
@@ -207,7 +213,8 @@ async def active_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_cu
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.delete('/irrelevant-vacancies/{vacancy_id}/delete', status_code=status.HTTP_200_OK)
+@router.delete('/irrelevant-vacancies/{vacancy_id}/delete', status_code=status.HTTP_200_OK,
+               summary="Удалить вакансию")
 async def delete_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_current_user)],
                                     vacancy_id: PydanticObjectId):
     try:
@@ -230,7 +237,8 @@ async def delete_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_cu
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.put('/vacancies/{vacancy_id}/close', status_code=status.HTTP_201_CREATED)
+@router.put('/vacancies/{vacancy_id}/close', status_code=status.HTTP_201_CREATED,
+            summary="Закрыть вакансию")
 async def close_vacancy(current_user: Annotated[dict, Depends(get_current_user)], vacancy_id: PydanticObjectId):
     try:
         company_id = current_user.get("id")
@@ -249,7 +257,8 @@ async def close_vacancy(current_user: Annotated[dict, Depends(get_current_user)]
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/vacancies/{vacancy_id}", status_code=status.HTTP_200_OK)
+@router.get("/vacancies/{vacancy_id}", status_code=status.HTTP_200_OK,
+            summary="Подробнее о вакансии")
 async def get_vacancies_by_company(current_user: Annotated[dict, Depends(get_current_user)],
                                    vacancy_id: PydanticObjectId):
     try:
@@ -272,7 +281,8 @@ async def get_vacancies_by_company(current_user: Annotated[dict, Depends(get_cur
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.put("/vacancies/{vacancy_id}", response_model=ShipRead, status_code=status.HTTP_201_CREATED)
+@router.put("/vacancies/{vacancy_id}", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
+            summary="Редактировать вакансию")
 async def update_vacancies_by_company(request: Ship, vacancy_id: PydanticObjectId,
                                       current_user: Optional[dict] = Depends(get_current_user)):
     try:
