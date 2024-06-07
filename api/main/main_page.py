@@ -2,10 +2,8 @@ from beanie import SortDirection
 from fastapi import APIRouter, HTTPException
 from starlette import status
 from models import ship, user_model, company_model, news_model
-from schemas.main.vacancy import Vacancy, CompanyInfo
-from schemas.main.resume import Resume
+from .schemas import Vacancy, CompanyInfo, ResponseOffers, News, Resume
 from .config import format_date
-
 
 router = APIRouter()
 
@@ -22,13 +20,12 @@ async def main_page():
             "new_vacancy": []
         }
         for doc in document_vacancy:
-
             document_company = await company_model.find_one({"vacancies": doc.id})
 
-            data_vacancy = {
-                "company_info": CompanyInfo(**document_company.dict()),
-                "vacancies": Vacancy(**doc.dict()),
-            }
+            data_vacancy = ResponseOffers(
+                companyInfo=CompanyInfo(**document_company.dict()),
+                vacancy=Vacancy(**doc.dict())
+            )
             vacancy["new_vacancy"].append(data_vacancy)
 
         data.append(vacancy)
@@ -40,7 +37,6 @@ async def main_page():
         }
 
         for doc in document_resume:
-
             resume_doc = Resume(**doc.dict())
             resume["new_resume"].append(resume_doc)
 
@@ -55,20 +51,18 @@ async def main_page():
         }
 
         for news in document_news:
-
             formated_date = await format_date(news.created_at)
 
             news.created_at = formated_date
 
-            news_list["new_news"].append(news)
+            news_list["new_news"].append(News(**news.dict()))
 
         for news in interesting_news:
-
             formated_date = await format_date(news.created_at)
 
             news.created_at = formated_date
 
-            news_list["interesting"].append(news)
+            news_list["interesting"].append(News(**news.dict()))
 
         data.append(news_list)
         return data

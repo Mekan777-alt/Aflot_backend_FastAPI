@@ -3,16 +3,20 @@ from pydantic import Field
 from models.db import db
 from typing import Optional, List
 from datetime import date
-from pydantic import EmailStr
+from pydantic import EmailStr, BaseModel
+
+
+class SalaryJob(BaseModel):
+    salaryFrom: Optional[str] = None
+    salaryTo: Optional[str] = None
 
 
 class ship(Document):
     __database__ = db
 
-
     id: Optional[PydanticObjectId] = Field(None, alias="_id")
     position: str
-    salary: str
+    salary: Optional[SalaryJob] = None
     date_of_departure: Optional[date] = None
     contract_duration: str
     ship_name: str

@@ -16,7 +16,6 @@ async def lifespan(app: FastAPI):
         document_models=[
             user_model,
             ship,
-            company_model,
             auth,
             news_model,
             contact,
@@ -27,7 +26,8 @@ async def lifespan(app: FastAPI):
             swims_tariffs,
             description_tariffs,
             company_tariffs,
-            navy
+            navy,
+            company_model
         ],
     )
     yield

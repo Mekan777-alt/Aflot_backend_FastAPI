@@ -3,11 +3,11 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Annotated, List
 from datetime import date
 from api.auth.config import get_current_user
+from api.vacancy.schemas import Vacancies
 from models import user_model, auth, company_model, ship
 from starlette import status
 from beanie import PydanticObjectId
 from schemas.resumes.user_resume import UserResumeResponse, PostAJobsRequest, UserResume
-from schemas.vacancies_company.vacancies_list import Vacancies
 
 router = APIRouter()
 

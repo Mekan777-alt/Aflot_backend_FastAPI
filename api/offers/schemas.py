@@ -1,16 +1,36 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import date
 from beanie import PydanticObjectId
+from datetime import date
 
 
-class ShipRead(BaseModel):
+class OffersSailor(BaseModel):
     id: PydanticObjectId
     position: str
+    date_of_departure: date
     ship_name: str
+    salary: str
+    contract_duration: str
 
 
-class Ship(BaseModel):
+class OffersCompanyInfo(BaseModel):
+    id: PydanticObjectId
+    company_name: str
+    photo_path: Optional[str] = None
+
+
+class ResponsesOffers(BaseModel):
+    offers: OffersSailor
+    companyInfo: OffersCompanyInfo
+
+
+class Response(BaseModel):
+    offers: Optional[List[ResponsesOffers]] = None
+    countIncoming: str
+
+
+class OfferID(BaseModel):
+    id: PydanticObjectId
     position: str
     salary: str
     date_of_departure: Optional[date] = None
@@ -20,7 +40,7 @@ class Ship(BaseModel):
     ship_type: str
     year_built: int
     contact_person: str
-    status: Optional[str] = None
+    status: str
     email: Optional[EmailStr] = None
     dwt: int
     kw: int

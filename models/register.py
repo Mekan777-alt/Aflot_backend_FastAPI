@@ -1,10 +1,21 @@
 from datetime import date, datetime
-from beanie import Document
 from schemas.auth.auth import Optional
 from models.db import db
 from pydantic import BaseModel, EmailStr, Field
 from typing import List
-from beanie import PydanticObjectId, Indexed
+from beanie import PydanticObjectId, Indexed, Document
+
+
+class CompanyNavy(BaseModel):
+    id: PydanticObjectId
+    ship_name: str
+    imo: Optional[str] = None
+    ship_type: str
+    year_built: str
+    dwt: str
+    kw: str
+    length: str
+    width: str
 
 
 class NotificationSettings(BaseModel):
@@ -82,6 +93,7 @@ class user_model(Document):
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
+    birth_date: Optional[date] = None
     telegram: Optional[str] = None
     positions: Optional[List[str]] = None
     worked: Optional[List[str]] = None
@@ -96,7 +108,7 @@ class user_model(Document):
     shipwrights_papers: Optional[ShipwrightsPapers] = None
     additional_documents: Optional[AdditionalDocuments] = None
     working_experience: Optional[WorkExperience] = None
-    responses: List[PydanticObjectId] = None
+    responses: List[PydanticObjectId] = Field(default_factory=list)
     offers: List[PydanticObjectId] = None
 
     async def create_default(self):
@@ -153,6 +165,7 @@ class company_model(Document):
     company_name: str
     company_inn: Indexed(int, unique=True)
     company_address: str
+    vessel: Optional[List[CompanyNavy]] = None
     favorites_resume: Optional[List[PydanticObjectId]] = None
     black_list_resume: Optional[List[PydanticObjectId]] = None
     vacancies: Optional[List[PydanticObjectId]] = None

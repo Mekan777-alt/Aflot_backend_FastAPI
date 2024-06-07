@@ -1,16 +1,62 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import company_model, auth, user_model
+from models import company_model, auth, user_model, navy
 from beanie import PydanticObjectId
 from models.jobs import ship as ShipModel
 from starlette import status
 from api.auth.config import get_current_user
-from schemas.vacancies_company.ship import Ship, ShipRead
-from schemas.vacancies_company.vacancies_list import VacanciesResponse, ResponseCount, Vacancies
 from typing import Annotated, Optional
 from schemas.vacancies_company.user_resume import Resume
 from typing import List
+from .schemas import (Ship, ShipRead, VacanciesResponse, ResponseCount, Vacancies,
+                      ResponseNavySchemas, CompanyNavySchemas, NavySchemas)
 
 router = APIRouter()
+
+
+@router.get('/create_vacancies', status_code=status.HTTP_200_OK,
+            summary="Возвращается судна компании и судна МОРСКОЙ ФЛОТ")
+async def get_information_vacancy(current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] == "Моряк":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Авторизуйтесь")
+
+        company_id = current_user.get("id")
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
+
+        resume_id = company_info.resumeID
+
+        resume_info = await company_model.get(resume_id)
+
+        if not resume_info:
+            return HTTPException(detail="Заполните резюме компании", status_code=status.HTTP_404_NOT_FOUND)
+
+        company_navy = resume_info.vessel
+
+        if not company_navy:
+            company_navy = []
+
+        list_company = []
+
+        for nav in company_navy:
+
+            list_company.append(CompanyNavySchemas(**nav.dict()))
+
+        navy_site = await navy.find_all().to_list()
+
+        site_list = []
+
+        for nav in navy_site:
+
+            site_list.append(NavySchemas(**nav.dict()))
+
+        return ResponseNavySchemas(companyNavy=list_company, navy=site_list)
+
+    except HTTPException as e:
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
 @router.post("/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
@@ -18,6 +64,9 @@ router = APIRouter()
 async def create_vacancies_by_company(jobs_create: Ship,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
+        if current_user is None or current_user['role'] == "Моряк":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Авторизуйтесь")
+
         company_id = current_user.get("id")
         company_info = await auth.get(company_id)
 

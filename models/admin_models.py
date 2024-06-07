@@ -11,6 +11,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+class SalaryJob(EmbeddedDocument):
+    salaryFrom = StringField()
+    salaryTo = StringField()
+
+
 class Auth(Document):
     resumeID = ObjectIdField()
     email = EmailField(unique=True)
@@ -31,7 +36,7 @@ class Auth(Document):
 
 class Ship(Document):
     position = StringField(verbose_name="Позиция")
-    salary = StringField()
+    salary = EmbeddedDocumentField(SalaryJob)
     date_of_departure = DateField()
     contract_duration = StringField()
     ship_name = StringField()
@@ -151,6 +156,17 @@ class UserModel(Document):
     working_experience = EmbeddedDocumentField(WorkExperience)
 
 
+class CompanyNavy(EmbeddedDocument):
+    ship_name = StringField()
+    imo = StringField()
+    ship_type = StringField()
+    year_built = StringField()
+    dwt = StringField()
+    kw = StringField()
+    length = StringField()
+    width = StringField()
+
+
 class CompanyModel(Document):
     email = EmailField(unique=True)
     phone_number = StringField(unique=True)
@@ -162,6 +178,7 @@ class CompanyModel(Document):
     company_name = StringField()
     company_inn = IntField(unique=True)
     company_address = StringField()
+    vessel = ListField(EmbeddedDocumentField(CompanyNavy))
     favorites_resume = ListField(ObjectIdField())
     black_list_resume = ListField(ObjectIdField())
     vacancies = ListField(ObjectIdField())
