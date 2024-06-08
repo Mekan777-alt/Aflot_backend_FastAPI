@@ -1,10 +1,11 @@
 from fastapi import Depends, HTTPException, APIRouter
 from starlette.responses import JSONResponse
 from starlette import status
+from .schemas import NewShipSchema, MyNavy, ResponseMyNavy
 from beanie import PydanticObjectId
-from models import auth, company_model
+from models import auth, company_model, moderation_navy, navy
 from schemas.profile.profile_company import CompanyOldSettings
-from typing import Annotated
+from typing import Optional
 from api.auth.config import get_current_user
 from schemas.profile.profile_company import CompanySchema
 
@@ -13,8 +14,11 @@ router = APIRouter()
 
 @router.get("/profile", status_code=status.HTTP_200_OK, response_model=CompanySchema,
             summary="Возвращает профиль компании")
-async def get_company_profile(current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_company_profile(current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
         company_id = current_user.get('id')
 
@@ -34,8 +38,11 @@ async def get_company_profile(current_user: Annotated[dict, Depends(get_current_
 
 @router.get("/profile/old_settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
             summary="Возвращает ДОП настройки профиля компании")
-async def get_company_old_settings(current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_company_old_settings(current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
         company_id = current_user.get('id')
 
@@ -55,8 +62,12 @@ async def get_company_old_settings(current_user: Annotated[dict, Depends(get_cur
 
 @router.put("/profile/old_settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
             summary="Изменение ДОП настроек профиля компании")
-async def save_company_profile(request: CompanyOldSettings, current_user: Annotated[dict, Depends(get_current_user)]):
+async def save_company_profile(request: CompanyOldSettings, current_user: Optional[dict] = Depends(get_current_user)):
     try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
         company_id = current_user.get('id')
 
         company_info = await auth.get(company_id)
@@ -79,3 +90,101 @@ async def save_company_profile(request: CompanyOldSettings, current_user: Annota
     except HTTPException as e:
 
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
+
+@router.get("/profile/my-navy", status_code=status.HTTP_200_OK, summary="Возвращает судна компании")
+async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
+
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        company_id = current_user.get('id')
+
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Company not found")
+
+        resume = await company_model.get(company_info.resumeID)
+
+        vessels = resume.vessel
+
+        response_my_navy = []
+
+        for vessel in vessels:
+
+            response_my_navy.append(MyNavy(**vessel.dict()))
+
+        response_navy_moderation = []
+
+        moderations = await moderation_navy.find({"company_id": company_info.resumeID}).to_list()
+
+        for moderation in moderations:
+            response_navy_moderation.append(MyNavy(**moderation.dict()))
+
+        return ResponseMyNavy(myNavy=response_my_navy, moderationNavy=response_navy_moderation)
+    except HTTPException as e:
+
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post("/profile/my-navy/add-my-ship", status_code=status.HTTP_201_CREATED,
+             summary="Добавить судно в ручную")
+async def add_my_ship(request: NewShipSchema, current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        company_id = current_user.get('id')
+
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Company not found")
+
+        moderation_navy_obj = moderation_navy(
+            company_id=company_info.resumeID,
+            ship_name=request.ship_name,
+            imo=request.imo,
+            ship_type=request.ship_type,
+            year_built=request.year_built,
+            dwt=request.dwt,
+            kw=request.kw,
+            length=request.length,
+            width=request.width
+        )
+        await moderation_navy_obj.save()
+
+        return moderation_navy_obj
+
+    except HTTPException as e:
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.get("/profile/my-navy/add-ship", status_code=status.HTTP_200_OK, summary="Возвращает список «Морского флота»")
+async def get_navy_list(current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        navy_list = await navy.find_all().to_list()
+
+        return navy_list
+
+    except HTTPException as e:
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post("/profile/my-navy/add-ship", status_code=status.HTTP_201_CREATED,
+             summary="Добавить судно из «Морского флота»")
+async def add_ship_navy(current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        pass
+
+    except HTTPException as e:
+        return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)

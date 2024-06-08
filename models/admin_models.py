@@ -157,6 +157,7 @@ class UserModel(Document):
 
 
 class CompanyNavy(EmbeddedDocument):
+    id = ObjectIdField()
     ship_name = StringField()
     imo = StringField()
     ship_type = StringField()
@@ -322,3 +323,27 @@ class Navy(Document):
     kw = StringField()
     length = StringField()
     width = StringField()
+
+
+class ModerationNavy(Document):
+    ship_name = StringField()
+    imo = StringField()
+    ship_type = StringField()
+    year_built = StringField()
+    dwt = StringField()
+    kw = StringField()
+    length = StringField()
+    width = StringField()
+    company_id = ObjectIdField()
+    is_active = BooleanField()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.is_active:
+            company = CompanyModel.objects.get(id=self.company_id)
+            vessel = CompanyNavy(id=self.id, ship_name=self.ship_name, imo=self.imo, ship_type=self.ship_type,
+                                 year_built=self.year_built, dwt=self.dwt, kw=self.kw,
+                                 length=self.length, width=self.width)
+            company.vessel.append(vessel)
+            company.save()
+            self.delete()

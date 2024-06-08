@@ -3,10 +3,8 @@ from starlette import status
 from typing import Annotated
 from models import user_model, company_model, auth
 from api.auth.config import get_current_user
-import shutil
+from api.s3API.request import credentials_request, bucket_name
 import boto3
-from api.s3API.config import credentials_request, bucket_name, tenant_name
-import subprocess
 
 router = APIRouter()
 
