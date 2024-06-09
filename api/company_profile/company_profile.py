@@ -25,7 +25,6 @@ async def get_company_profile(current_user: Optional[dict] = Depends(get_current
         company_info = await auth.get(company_id)
 
         if not company_info:
-
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Company not found")
 
         resume = await company_model.get(company_info.resumeID)
@@ -94,7 +93,6 @@ async def save_company_profile(request: CompanyOldSettings, current_user: Option
 
 @router.get("/profile/my-navy", status_code=status.HTTP_200_OK, summary="Возвращает судна компании")
 async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
-
     try:
 
         if current_user is None or current_user['role'] != "Компания":
@@ -114,7 +112,6 @@ async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
         response_my_navy = []
 
         for vessel in vessels:
-
             response_my_navy.append(MyNavy(**vessel.dict()))
 
         response_navy_moderation = []
@@ -182,9 +179,10 @@ async def delete_my_navy(navy_id: PydanticObjectId, current_user: Optional[dict]
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/profile/my-navy/moderation/{navy_id}", summary="Подребнее о судне в разделе модерации",
+@router.get("/profile/my-navy/moderation/{navy_id}", summary="Подробнее о судне в разделе модерации",
             status_code=status.HTTP_200_OK, response_model=MyNavy)
-async def get_navy_moderation_by_id(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
+async def get_navy_moderation_by_id(navy_id: PydanticObjectId,
+                                    current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
         if current_user is None or current_user['role'] != "Компания":
@@ -193,6 +191,24 @@ async def get_navy_moderation_by_id(navy_id: PydanticObjectId, current_user: Opt
         vessel = await moderation_navy.get(navy_id)
 
         return vessel
+
+    except HTTPException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete("/profile/my-navy/moderation/{navy_id}/cancel", summary="Отменить запрос на модерацию",
+               status_code=status.HTTP_204_NO_CONTENT)
+async def cancel_maderation_navy(navy_id: PydanticObjectId, current_user: dict = Depends(get_current_user)):
+    try:
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        moderation_navy_doc = await moderation_navy.get(navy_id)
+
+        if moderation_navy_doc:
+            await moderation_navy_doc.delete()
+
+        return {"message": f"{navy_id} cancelled successfully"}
 
     except HTTPException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
