@@ -130,6 +130,74 @@ async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
+@router.get("/profile/my-navy/{navy_id}", summary="Подребнее о судне", status_code=status.HTTP_200_OK)
+async def get_my_navy_by_id(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        company_id = current_user.get('id')
+
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Company not found")
+
+        resume = await company_model.get(company_info.resumeID)
+
+        vessel = next((v for v in resume.vessel if v.id == navy_id), None)
+
+        if vessel is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vessel not found")
+
+        return vessel
+
+    except HTTPException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete("/profile/my-navy/{navy_id}/delete", status_code=status.HTTP_204_NO_CONTENT,
+               summary="Удаление судов из раздела Мои суда")
+async def delete_my_navy(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        company_id = current_user.get('id')
+
+        company_info = await auth.get(company_id)
+
+        if not company_info:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Company not found")
+
+        resume = await company_model.get(company_info.resumeID)
+
+        await company_model.update(resume, {"$pull": {"vessel": {"id": navy_id}}})
+
+        return {"message": f"{navy_id} deleted successfully"}
+
+    except HTTPException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get("/profile/my-navy/moderation/{navy_id}", summary="Подребнее о судне в разделе модерации",
+            status_code=status.HTTP_200_OK, response_model=MyNavy)
+async def get_navy_moderation_by_id(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] != "Компания":
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+        vessel = await moderation_navy.get(navy_id)
+
+        return vessel
+
+    except HTTPException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
 @router.post("/profile/my-navy/add-my-ship", status_code=status.HTTP_201_CREATED,
              summary="Добавить судно в ручную")
 async def add_my_ship(request: NewShipSchema, current_user: Optional[dict] = Depends(get_current_user)):
