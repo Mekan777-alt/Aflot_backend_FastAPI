@@ -108,8 +108,8 @@ class user_model(Document):
     shipwrights_papers: Optional[ShipwrightsPapers] = None
     additional_documents: Optional[AdditionalDocuments] = None
     working_experience: Optional[WorkExperience] = None
-    responses: List[PydanticObjectId] = Field(default_factory=list)
-    offers: List[PydanticObjectId] = None
+    responses: Optional[List[PydanticObjectId]] = Field(default_factory=list)
+    offers: Optional[List[PydanticObjectId]] = None
 
     async def create_default(self):
         self.main_documents = MainDocumentsUsers(
@@ -165,6 +165,9 @@ class company_model(Document):
     company_name: str
     company_inn: Indexed(int, unique=True)
     company_address: str
+    autofill: Optional[bool] = False
+    payment_history: Optional[List[History]] = None
+    balance: Optional[float] = 0
     vessel: Optional[List[CompanyNavy]] = None
     favorites_resume: Optional[List[PydanticObjectId]] = None
     black_list_resume: Optional[List[PydanticObjectId]] = None

@@ -14,7 +14,7 @@ router = APIRouter()
 async def get_resume(current_user: Annotated[dict, Depends(get_current_user)]):
     try:
 
-        if current_user['role'] == 'Компания':
+        if current_user is None or current_user['role'] == 'Компания':
 
             return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -39,7 +39,7 @@ async def put_resume_sailor(current_user: Annotated[dict, Depends(get_current_us
 
     try:
 
-        if current_user['role'] == 'Компания':
+        if current_user is None or current_user['role'] == 'Компания':
 
             return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 

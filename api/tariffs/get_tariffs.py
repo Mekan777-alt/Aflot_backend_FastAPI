@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Optional
+from typing import Optional, List
 from api.auth.config import get_current_user
 from starlette import status
-from typing import List
-from models import swims_tariffs, description_tariffs, company_tariffs
+from models import swims_tariffs, description_tariffs, company_tariffs, auth, user_model
+from .schemas import PaymentSchemas
 
 router = APIRouter()
 
@@ -44,6 +44,29 @@ async def get_tariffs_swims():
 
         data.append(descriptions)
         return data
+    except HTTPException as e:
+
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post("/get_tariffs/sailor/pay")
+async def create_payment(request: PaymentSchemas, current_user: dict = Depends(get_current_user)):
+    try:
+
+        if current_user is None or current_user['role'] == 'Компания':
+
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+        user_id = current_user.get('id')
+
+        resume_id = await auth.get(user_id)
+
+        resume = await user_model.get(resume_id.resumeID)
+
+        if not resume:
+
+            return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No resume found")
+
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
