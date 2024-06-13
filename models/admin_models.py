@@ -140,6 +140,7 @@ class UserModel(Document):
     country = StringField()
     region = StringField()
     city = StringField()
+    birth_date = DateField(default=None)
     telegram = StringField()
     positions = ListField(StringField())
     worked = ListField(StringField())
@@ -154,6 +155,9 @@ class UserModel(Document):
     shipwrights_papers = EmbeddedDocumentField(ShipwrightsPapers)
     additional_documents = EmbeddedDocumentField(AdditionalDocuments)
     working_experience = EmbeddedDocumentField(WorkExperience)
+    responses = ListField(ObjectIdField())
+    offers = ListField(ObjectIdField())
+
 
 
 class CompanyNavy(EmbeddedDocument):
@@ -179,6 +183,9 @@ class CompanyModel(Document):
     company_name = StringField()
     company_inn = IntField(unique=True)
     company_address = StringField()
+    autofill = BooleanField(default=False)
+    payment_history = ListField(EmbeddedDocumentField(History))
+    balance = FloatField(default=0.0)
     vessel = ListField(EmbeddedDocumentField(CompanyNavy))
     favorites_resume = ListField(ObjectIdField())
     black_list_resume = ListField(ObjectIdField())
