@@ -4,12 +4,17 @@ from datetime import date
 from beanie import PydanticObjectId
 
 
+class SalarySchema(BaseModel):
+    salaryFrom: str
+    salaryTo: str
+
+
 class Vacancy(BaseModel):
     id: PydanticObjectId
     position: str
     date_of_departure: date
     ship_name: str
-    salary: str
+    salary: Optional[SalarySchema] = None
     contract_duration: str
 
 
