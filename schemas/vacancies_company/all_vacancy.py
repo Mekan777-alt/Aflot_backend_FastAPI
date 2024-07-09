@@ -4,10 +4,15 @@ from pydantic import BaseModel
 from beanie import PydanticObjectId
 
 
+class SalarySchema(BaseModel):
+    salaryFrom: str
+    salaryTo: str
+
+
 class VacanciesCompany(BaseModel):
     id: PydanticObjectId
     position: str
-    salary: str
+    salary: Optional[SalarySchema]
     ship_name: str
     date_of_departure: Optional[date] = None
     contract_duration: str

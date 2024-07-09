@@ -145,7 +145,7 @@ async def respond_vacancy(vacancies_id: PydanticObjectId, current_user: Optional
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/all-vacancies/{vacancies_id}/add_favorite", summary="Добавить вакакнсию в Избранные")
+@router.post("/all-vacancies/{vacancies_id}/favorite", summary="Добавить вакакнсию в Избранные")
 async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
                                   current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -181,7 +181,7 @@ async def add_vacancy_to_favorite(vacancies_id: PydanticObjectId,
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.post("/all-vacancies/{vacancies_id}/add_favorite/company/{company_id}", summary="Добавить компанию в Избранные")
+@router.post("/all-vacancies/{vacancies_id}/favorite/company/{company_id}", summary="Добавить компанию в Избранные")
 async def add_company_to_favorite(vacancies_id: PydanticObjectId, company_id: PydanticObjectId,
                                   current_user: Optional[dict] = Depends(get_current_user)):
     try:

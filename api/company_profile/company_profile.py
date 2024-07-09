@@ -35,7 +35,7 @@ async def get_company_profile(current_user: Optional[dict] = Depends(get_current
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
 
-@router.get("/profile/old_settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
+@router.get("/profile/settings", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
             summary="Возвращает ДОП настройки профиля компании")
 async def get_company_old_settings(current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -59,7 +59,7 @@ async def get_company_old_settings(current_user: Optional[dict] = Depends(get_cu
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.put("/profile/old_settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
+@router.put("/profile/settings/save", status_code=status.HTTP_200_OK, response_model=CompanyOldSettings,
             summary="Изменение ДОП настроек профиля компании")
 async def save_company_profile(request: CompanyOldSettings, current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -91,7 +91,7 @@ async def save_company_profile(request: CompanyOldSettings, current_user: Option
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/profile/my-navy", status_code=status.HTTP_200_OK, summary="Возвращает судна компании")
+@router.get("/profile/navy", status_code=status.HTTP_200_OK, summary="Возвращает судна компании")
 async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
@@ -127,7 +127,7 @@ async def get_my_navy(current_user: Optional[dict] = Depends(get_current_user)):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/profile/my-navy/{navy_id}", summary="Подребнее о судне", status_code=status.HTTP_200_OK)
+@router.get("/profile/navy/{navy_id}", summary="Подребнее о судне", status_code=status.HTTP_200_OK)
 async def get_my_navy_by_id(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
@@ -154,7 +154,7 @@ async def get_my_navy_by_id(navy_id: PydanticObjectId, current_user: Optional[di
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/profile/my-navy/{navy_id}/delete", status_code=status.HTTP_204_NO_CONTENT,
+@router.delete("/profile/navy/{navy_id}/delete", status_code=status.HTTP_204_NO_CONTENT,
                summary="Удаление судов из раздела Мои суда")
 async def delete_my_navy(navy_id: PydanticObjectId, current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -179,7 +179,7 @@ async def delete_my_navy(navy_id: PydanticObjectId, current_user: Optional[dict]
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/profile/my-navy/moderation/{navy_id}", summary="Подробнее о судне в разделе модерации",
+@router.get("/profile/navy/moderation/{navy_id}", summary="Подробнее о судне в разделе модерации",
             status_code=status.HTTP_200_OK, response_model=MyNavy)
 async def get_navy_moderation_by_id(navy_id: PydanticObjectId,
                                     current_user: Optional[dict] = Depends(get_current_user)):
@@ -196,7 +196,7 @@ async def get_navy_moderation_by_id(navy_id: PydanticObjectId,
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/profile/my-navy/moderation/{navy_id}/cancel", summary="Отменить запрос на модерацию",
+@router.delete("/profile/navy/moderation/{navy_id}/cancel", summary="Отменить запрос на модерацию",
                status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_maderation_navy(navy_id: PydanticObjectId, current_user: dict = Depends(get_current_user)):
     try:
@@ -214,7 +214,7 @@ async def cancel_maderation_navy(navy_id: PydanticObjectId, current_user: dict =
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.post("/profile/my-navy/add-my-ship", status_code=status.HTTP_201_CREATED,
+@router.post("/profile/navy/add-my-ship", status_code=status.HTTP_201_CREATED,
              summary="Добавить судно в ручную")
 async def add_my_ship(request: NewShipSchema, current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -248,7 +248,7 @@ async def add_my_ship(request: NewShipSchema, current_user: Optional[dict] = Dep
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/profile/my-navy/add-ship", status_code=status.HTTP_200_OK, summary="Возвращает список «Морского флота»")
+@router.get("/profile/navy/ship", status_code=status.HTTP_200_OK, summary="Возвращает список «Морского флота»")
 async def get_navy_list(current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
@@ -263,7 +263,7 @@ async def get_navy_list(current_user: Optional[dict] = Depends(get_current_user)
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/profile/my-navy/add-ship", status_code=status.HTTP_201_CREATED,
+@router.post("/profile/navy/ship", status_code=status.HTTP_201_CREATED,
              summary="Добавить судно из «Морского флота»")
 async def add_ship_navy(current_user: Optional[dict] = Depends(get_current_user)):
     try:

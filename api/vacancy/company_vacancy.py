@@ -13,7 +13,7 @@ from .schemas import (Ship, ShipRead, VacanciesResponse, ResponseCount, Vacancie
 router = APIRouter()
 
 
-@router.get('/create_vacancies', status_code=status.HTTP_200_OK,
+@router.get('/create-vacancies', status_code=status.HTTP_200_OK,
             summary="Возвращается судна компании и судна МОРСКОЙ ФЛОТ")
 async def get_information_vacancy(current_user: Optional[dict] = Depends(get_current_user)):
     try:
@@ -59,7 +59,7 @@ async def get_information_vacancy(current_user: Optional[dict] = Depends(get_cur
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/create_vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
+@router.post("/create-vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
              summary="Создать вакансию")
 async def create_vacancies_by_company(jobs_create: Ship,
                                       current_user: Annotated[dict, Depends(get_current_user)]):

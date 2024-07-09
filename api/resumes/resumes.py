@@ -158,7 +158,7 @@ async def post_a_job_post(sailor_id: PydanticObjectId, request: PostAJobsRequest
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/resumes/{sailor_id}/add_favorite", status_code=status.HTTP_201_CREATED,
+@router.post("/resumes/{sailor_id}/favorite", status_code=status.HTTP_201_CREATED,
              summary="Добавить моряка в избранные")
 async def add_user_to_favorite(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -183,7 +183,7 @@ async def add_user_to_favorite(sailor_id: PydanticObjectId, current_user: Annota
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post('/resumes/{sailor_id}/add-blacklist', status_code=status.HTTP_201_CREATED,
+@router.post('/resumes/{sailor_id}/blacklist', status_code=status.HTTP_201_CREATED,
              summary="Добавить моряза в черный списко")
 async def add_blacklist(sailor_id: PydanticObjectId, current_user: Annotated[dict, Depends(get_current_user)]):
     try:
