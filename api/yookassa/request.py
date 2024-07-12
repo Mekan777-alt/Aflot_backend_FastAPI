@@ -6,7 +6,7 @@ import uuid
 load_dotenv()
 
 
-async def create_payment(value, description):
+async def create_payment(value, description, check_id):
 
     Configuration.account_id = os.getenv('ACCOUNT_ID_YOOKASSA')
     Configuration.secret_key = os.getenv('SECRET_KEY_YOOKASSA')
@@ -22,6 +22,6 @@ async def create_payment(value, description):
         },
         "capture": True,
         "description": description
-    }, uuid.uuid4())
+    }, check_id)
 
     return payment["confirmation"]["confirmation_url"]

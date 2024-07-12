@@ -5,7 +5,8 @@ from beanie import init_beanie
 from starlette.staticfiles import StaticFiles
 
 from models import (db, user_model, company_model, auth, ship, news_model, contact, feedback, vessel, position,
-                    real_history, swims_tariffs, description_tariffs, company_tariffs, navy, moderation_navy)
+                    real_history, swims_tariffs, description_tariffs, company_tariffs, navy, moderation_navy,
+                    paymentHistory)
 from api.api_routers import api_router
 
 
@@ -28,7 +29,8 @@ async def lifespan(app: FastAPI):
             company_tariffs,
             navy,
             company_model,
-            moderation_navy
+            moderation_navy,
+            paymentHistory
         ],
     )
     yield

@@ -173,3 +173,4 @@ class company_model(Document):
     black_list_resume: Optional[List[PydanticObjectId]] = None
     vacancies: Optional[List[PydanticObjectId]] = None
     notification_settings: NotificationSettings
+    count_publications: int = Field(default=0)
